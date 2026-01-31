@@ -1,5 +1,6 @@
 """Diffusion process tests."""
-from stochastic.processes.diffusion import DiffusionProcess
+
+from pystochastic.processes.diffusion import DiffusionProcess
 
 
 def test_diffusion_process_str_repr(speed, mean, vol, volexp, t):

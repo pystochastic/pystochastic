@@ -1,5 +1,6 @@
 """Constant elasticity of variance tests."""
-from stochastic.processes.diffusion import ConstantElasticityVarianceProcess
+
+from pystochastic.processes.diffusion import ConstantElasticityVarianceProcess
 
 
 def test_constant_elasticity_variance_str_repr(drift, vol, volexp, t):

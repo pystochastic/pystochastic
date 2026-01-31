@@ -1,32 +1,49 @@
-cov:
-	open htmlcov/index.html
+.PHONY: create_venv
 
-.PHONY: docs
+create_venv:
+	uv sync --locked --dev --all-extras
+
+run_mypy:
+	uv run mypy src tests
+
+run_pyright:
+	uv run pyright src tests
+
+run_pylint:
+	uv run pylint src tests
+
+run_ruff:
+	uv run ruff check src tests
+
+run_tests:
+	uv run pytest tests
+
+run_coverage:
+	uv run pytest \
+		--disable-warnings \
+		--maxfail=1 \
+		--tb=short \
+		--cov=src \
+		--cov-report=term-missing:skip-covered \
+		--cov-report=html \
+		--cov-report=xml \
+		-n auto \
+		--dist=loadfile \
+		-rsx \
+		tests
+
+build:
+	uv build
+
+publish:
+	uv publish --index pypi
+
 docs:
 	poetry export --dev -f requirements.txt > docs/requirements.txt
 	cd docs && \
 	make html
 	open docs/_build/html/index.html
 
-fmt:
-	poetry run isort .
-	poetry run black .
-
-setup:
-	asdf install
-	poetry install
-
-test:
-	poetry run pytest
-
-build:
-	poetry build
-
 clean:
 	rm -rf dist
 
-publish: clean build
-	poetry publish
-
-release: clean build
-	ghr -u crflynn -r stochastic -c $(shell git rev-parse HEAD) -delete -b "release" -n $(shell poetry version --short) $(shell poetry version --short) dist/

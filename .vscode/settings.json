@@ -1,0 +1,71 @@
+{
+  // A
+  // B
+  // C
+  "cSpell.words": [
+    "allclose",
+    "Hosking",
+    "numpy",
+    "pystochastic",
+    "scipy"
+  ],
+  // D
+  // E
+  "editor.formatOnSave": true,
+  // F
+  "files.exclude": {
+    "**/__pycache__": true,
+  },
+  "files.insertFinalNewline": true,
+  "files.trimFinalNewlines": true,
+  "files.trimTrailingWhitespace": true,
+  // G
+  // H
+  // I
+  // J
+  "[jsonc]": {
+    "editor.defaultFormatter": "vscode.json-language-features"
+  },
+  // K
+  // L
+  // M
+  // N
+  // O
+  // P
+  "[python]": {
+    "editor.formatOnSave": true,
+    "editor.defaultFormatter": "ms-python.black-formatter",
+    "editor.codeActionsOnSave": {
+      "source.organizeImports": "explicit"
+    }
+  },
+  "python.testing.pytestArgs": [
+    "tests"
+  ],
+  "python.testing.unittestEnabled": false,
+  "python.testing.pytestEnabled": true,
+  "isort.args": [
+    "--profile",
+    "black"
+  ],
+  "isort.importStrategy": "fromEnvironment",
+  "mypy-type-checker.importStrategy": "fromEnvironment",
+  "pylint.importStrategy": "fromEnvironment",
+  "notebook.formatOnSave.enabled": true,
+  "notebook.insertFinalNewline": true,
+  "notebook.lineNumbers": "on",
+  "black-formatter.args": [
+    "--line-length",
+    "80"
+  ]
+  // Q
+  // R
+  // S
+  // T
+  // U
+  // V
+  // W
+  // X
+  // Y
+  // Z
+}

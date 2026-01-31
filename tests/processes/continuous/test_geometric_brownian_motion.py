@@ -1,6 +1,6 @@
 """Test GeometricBrownianMotion."""
 
-from stochastic.processes.continuous import GeometricBrownianMotion
+from pystochastic.processes.continuous import GeometricBrownianMotion
 
 
 def test_geometric_brownian_motion_str_repr(drift, volatility, t):

@@ -1,7 +1,8 @@
 """Moran process tests."""
+
 import pytest
 
-from stochastic.processes.discrete import MoranProcess
+from pystochastic.processes.discrete import MoranProcess
 
 
 def test_moran_process_str_repr(maximum):

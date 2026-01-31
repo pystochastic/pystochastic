@@ -1,7 +1,8 @@
 """Random walk tests."""
+
 import pytest
 
-from stochastic.processes.discrete import RandomWalk
+from pystochastic.processes.discrete import RandomWalk
 
 
 def test_random_walk_str_repr(steps, weights):

@@ -1,7 +1,8 @@
 """Test GeometricBrownianMotion."""
+
 import pytest
 
-from stochastic.processes.continuous import InverseGaussianProcess
+from pystochastic.processes.continuous import InverseGaussianProcess
 
 
 def test_inverse_gaussian_process_str_repr(mean_func, scale, t):

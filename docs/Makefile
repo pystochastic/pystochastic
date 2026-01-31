@@ -3,8 +3,8 @@
 
 # You can set these variables from the command line.
 SPHINXOPTS    =
-SPHINXBUILD   = sphinx-build
-SPHINXPROJ    = stochastic
+SPHINXBUILD   = uv run sphinx-build
+SPHINXPROJ    = pystochastic
 SOURCEDIR     = .
 BUILDDIR      = _build
 
@@ -14,7 +14,7 @@ help:
 	@$(SPHINXBUILD) -M help "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
 
 livehtml:
-	sphinx-autobuild -b html $(SOURCEDIR) $(BUILDDIR)/html
+	uv run sphinx-autobuild -b html $(SOURCEDIR) $(BUILDDIR)/html
 
 .PHONY: help Makefile
 

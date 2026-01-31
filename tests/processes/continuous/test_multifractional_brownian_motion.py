@@ -1,10 +1,14 @@
 """Test MultifractionalBrownianMotion."""
+
 import pytest
 
-from stochastic.processes.continuous import MultifractionalBrownianMotion
+from pystochastic.processes.continuous import MultifractionalBrownianMotion
 
 
-def test_multifractional_brownian_motion_str_repr(hurst_func, t):
+def test_multifractional_brownian_motion_str_repr(
+    hurst_func: None,
+    t: None,
+) -> None:
     instance = MultifractionalBrownianMotion(hurst_func, t)
     assert isinstance(repr(instance), str)
     assert isinstance(str(instance), str)

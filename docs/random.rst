@@ -10,7 +10,7 @@ Stochastic relies on `numpy <https://numpy.org/doc/stable/reference/random/index
 
     From numpy docs: The Generator’s normal, exponential and gamma functions use 256-step Ziggurat methods which are 2-10 times faster than NumPy’s Box-Muller or inverse CDF implementations.
 
-By default, the stochastic package uses numpy's faster `Generator <https://numpy.org/doc/stable/reference/random/generator.html#random-generator>`__ random number generation. With a function call, we can change the default back to the `legacy random number generation <https://numpy.org/doc/stable/reference/random/legacy.html#legacy>`__, which uses `RandomState <https://numpy.org/doc/stable/reference/random/legacy.html#numpy.random.RandomState>`__ objects.
+By default, the stochastic package uses numpy's faster `Generator <https://numpy.org/doc/stable/reference/random/generator.html#random-generator>`__ random number generation.
 
 If no ``rng`` arg is passed when instantiating process instances, each instance will reference the ``stochastic.random`` module's ``generator`` attribute for random number generation.
 
@@ -21,18 +21,12 @@ Changing the default random number generation on instances without specified ``r
 
 .. code-block:: python
 
-    from stochastic.processes import GaussianNoise
-    from stochastic import random
+    from pystochastic.processes import GaussianNoise
+    from pystochastic import random
 
     gn = GaussianNoise()
     print(gn.rng)
     # Generator(PCG64)
-
-    # use the legacy random number generator
-    random.use_randomstate()
-
-    print(gn.rng)
-    # <module 'numpy.random' from '/path/to/site-packages/numpy/random/__init__.py'>
 
     # use the newer Generator
     random.use_generator()
@@ -45,8 +39,8 @@ Setting the seed value:
 
 .. code-block:: python
 
-    from stochastic.processes import GaussianNoise
-    from stochastic import random
+    from pystochastic.processes import GaussianNoise
+    from pystochastic import random
 
     gn = GaussianNoise()
     print(gn.rng)
@@ -71,8 +65,8 @@ Passing `custom generators <https://numpy.org/doc/stable/reference/random/bit_ge
 
     from numpy.random import Generator
     from numpy.random import PCG64
-    from stochastic.processes import GaussianNoise
-    from stochastic import random
+    from pystochastic.processes import GaussianNoise
+    from pystochastic import random
 
     generator = Generator(PCG64(seed=42))
 

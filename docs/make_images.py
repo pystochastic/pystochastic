@@ -1,15 +1,27 @@
 import os
-import random
+from typing import Any
 
 import matplotlib.pyplot as plt
+import numpy as np
+import numpy.typing as npt
 
-from stochastic.processes import *
+from pystochastic.processes.base import BaseProcess
+
+# import random
+
 
 plt.style.use("bmh")
 
 
 def make_plot(
-    title, fname, x, ys, xlabel="Time", ylabel="Value", scatter=False, alt=False
+    title,
+    fname,
+    x,
+    ys,
+    xlabel="Time",
+    ylabel="Value",
+    scatter=False,
+    alt=False,
 ):
     fig, ax = plt.subplots(1, 1, figsize=(8, 4))
     if alt:
@@ -29,19 +41,25 @@ def make_plot(
     ax.set_ylabel(ylabel)
     # ax.axes.set_ylim(0, 1)
     plt.tight_layout()
-    plt.savefig(os.path.join((os.path.dirname(__file__)), "_static", f"{fname}.png"))
+    plt.savefig(
+        os.path.join((os.path.dirname(__file__)), "_static", f"{fname}.png")
+    )
     print(title + " saved")
     plt.close()
 
 
-def get_samples(num, inst, args):
+def get_samples(
+    num: int,
+    inst: BaseProcess,
+    args: dict[str, Any],
+) -> list[float]:
     ss = []
-    for k in range(num):
+    for _ in range(num):
         ss.append(inst.sample(**args))
     return ss
 
 
-def main():
+def main() -> None:
     # # Continuous
     # dim = 3
     # n_samples = 3

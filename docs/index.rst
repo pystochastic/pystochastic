@@ -1,16 +1,16 @@
-stochastic
+pystochastic
 ==========
 
 |build| |rtd| |codecov| |pypi| |pyversions|
 
-.. |build| image:: https://github.com/crflynn/stochastic/actions/workflows/build.yml/badge.svg
-    :target: https://github.com/crflynn/stochastic/actions
+.. |build| image:: https://github.com/pystochastic/pystochastic/actions/workflows/build.yml/badge.svg
+    :target: https://github.com/pystochastic/pystochastic/actions
 
 .. |rtd| image:: https://img.shields.io/readthedocs/stochastic.svg
     :target: http://stochastic.readthedocs.io/en/latest/
 
-.. |codecov| image:: https://codecov.io/gh/crflynn/stochastic/branch/master/graphs/badge.svg
-    :target: https://codecov.io/gh/crflynn/stochastic
+.. |codecov| image:: https://codecov.io/gh/pystochastic/pystochastic/branch/master/graphs/badge.svg
+    :target: https://codecov.io/gh/pystochastic/pystochastic
 
 .. |pypi| image:: https://img.shields.io/pypi/v/stochastic.svg
     :target: https://pypi.python.org/pypi/stochastic
@@ -19,29 +19,29 @@ stochastic
     :target: https://pypi.python.org/pypi/stochastic
 
 
-Stochastic is a python package for generating realizations of
+``pystochastic`` is a python package for generating realizations of
 stochastic processes.
 
 Installation
 ------------
 
-Stochastic is available on `pypi <https://pypi.python.org/pypi>`_ and can be
+``pystochastic`` is available on `pypi <https://pypi.python.org/pypi>`_ and can be
 installed using ``pip``:
 
 .. code-block:: bash
 
-   pip install stochastic
+   pip install pystochastic
 
 Dependencies
 ------------
 
-Stochastic depends on ``numpy`` for most calculations and ``scipy`` for
+``pystochastic`` depends on ``numpy`` for most calculations and ``scipy`` for
 certain random variable generation.
 
 Compatibility
 -------------
 
-Stochastic is tested on Python versions 3.6, 3.7, and 3.8.
+``pystochastic`` is tested on Python versions 3.12-14.
 
 Performance
 -----------
