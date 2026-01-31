@@ -1,6 +1,6 @@
 """Test BrownianMotion."""
 
-from stochastic.processes.continuous import BrownianMotion
+from pystochastic.processes.continuous import BrownianMotion
 
 
 def test_brownian_motion_str_repr(drift, scale, t):

@@ -1,7 +1,8 @@
 """Test FractionalGaussianNoise."""
+
 import pytest
 
-from stochastic.processes.noise import FractionalGaussianNoise
+from pystochastic.processes.noise import FractionalGaussianNoise
 
 
 def test_fractional_gaussian_noise_str_repr(hurst, t):

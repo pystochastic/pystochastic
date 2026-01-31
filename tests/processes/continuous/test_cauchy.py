@@ -1,6 +1,6 @@
 """Test CauchyProcess."""
 
-from stochastic.processes.continuous import CauchyProcess
+from pystochastic.processes.continuous import CauchyProcess
 
 
 def test_cauchy_process_str_repr(t):

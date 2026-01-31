@@ -1,6 +1,6 @@
 """Test WienerProcess."""
 
-from stochastic.processes.continuous import WienerProcess
+from pystochastic.processes.continuous import WienerProcess
 
 
 def test_wiener_str_repr(t):

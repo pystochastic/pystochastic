@@ -1,7 +1,8 @@
 """Test BesselProcess."""
+
 import pytest
 
-from stochastic.processes.continuous import BesselProcess
+from pystochastic.processes.continuous import BesselProcess
 
 
 def test_bessel_str_repr(dim, t):

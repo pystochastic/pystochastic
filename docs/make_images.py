@@ -3,7 +3,7 @@ import random
 
 import matplotlib.pyplot as plt
 
-from stochastic.processes import *
+from pystochastic.processes import *
 
 plt.style.use("bmh")
 

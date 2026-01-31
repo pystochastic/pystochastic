@@ -1,7 +1,8 @@
 """Test PoissonProcess."""
+
 import pytest
 
-from stochastic.processes.continuous import PoissonProcess
+from pystochastic.processes.continuous import PoissonProcess
 
 
 def test_poisson_process_str_repr(rate):

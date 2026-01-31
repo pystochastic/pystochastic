@@ -1,7 +1,8 @@
 """Test BrownianMeander."""
+
 import pytest
 
-from stochastic.processes.continuous import BrownianMeander
+from pystochastic.processes.continuous import BrownianMeander
 
 
 def test_brownian_meander_str_repr(t):

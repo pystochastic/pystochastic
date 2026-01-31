@@ -1,5 +1,6 @@
 """Ornstein-Uhlenbeck tests."""
-from stochastic.processes.diffusion import OrnsteinUhlenbeckProcess
+
+from pystochastic.processes.diffusion import OrnsteinUhlenbeckProcess
 
 
 def test_ornstein_uhlenbeck_str_repr(speed, vol, t):

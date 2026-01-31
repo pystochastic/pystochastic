@@ -1,12 +1,15 @@
 """Test the base classes."""
+
 import pytest
 
-from stochastic.utils.validation import check_increments
-from stochastic.utils.validation import check_nonnegative_number
-from stochastic.utils.validation import check_numeric
-from stochastic.utils.validation import check_numeric_or_single_arg_callable
-from stochastic.utils.validation import check_positive_integer
-from stochastic.utils.validation import check_positive_number
+from pystochastic.utils.validation import (
+    check_increments,
+    check_nonnegative_number,
+    check_numeric,
+    check_numeric_or_single_arg_callable,
+    check_positive_integer,
+    check_positive_number,
+)
 
 
 def test_check_positive_integer(increments_fixture):

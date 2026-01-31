@@ -1,7 +1,8 @@
 """Test MixedPoissonProcess."""
+
 import pytest
 
-from stochastic.processes.continuous import MixedPoissonProcess
+from pystochastic.processes.continuous import MixedPoissonProcess
 
 
 def test_mixed_poisson_process_str_repr(rate_func, rate_args, rate_kwargs):

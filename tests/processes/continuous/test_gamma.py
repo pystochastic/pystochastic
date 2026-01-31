@@ -1,7 +1,8 @@
 """Test GammaProcess."""
+
 import pytest
 
-from stochastic.processes.continuous import GammaProcess
+from pystochastic.processes.continuous import GammaProcess
 
 
 def test_gamma_process_init(

@@ -1,16 +1,22 @@
-"""Markov chain tests."""
 import pytest
 
-from stochastic.processes.discrete import MarkovChain
+from pystochastic.processes.discrete import MarkovChain
 
 
-def test_markov_chain_str_repr(transition, initial):
+def test_markov_chain_str_repr(
+    transition: list[list[float]],
+    initial: list[float],
+) -> None:
     instance = MarkovChain(transition, initial)
     assert isinstance(repr(instance), str)
     assert isinstance(str(instance), str)
 
 
-def test_markov_chain_sample(transition, initial, n):
+def test_markov_chain_sample(
+    transition: list[list[float]],
+    initial: list[float],
+    n: int,
+) -> None:
     instance = MarkovChain(transition, initial)
     s = instance.sample(n)
     assert len(s) == n
@@ -28,6 +34,9 @@ def test_markov_chain_sample(transition, initial, n):
         ([[0.5, 0.5], [0.5, 0.5]], [0.5, 0.25]),  # non-stochastic initial
     ],
 )
-def test_markov_chain_probability(transition, initial):
+def test_markov_chain_probability(
+    transition: list[list[float]],
+    initial: list[float],
+) -> None:
     with pytest.raises(ValueError):
         instance = MarkovChain(transition, initial)

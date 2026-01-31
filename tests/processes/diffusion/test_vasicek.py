@@ -1,5 +1,6 @@
 """Vasicek tests."""
-from stochastic.processes.diffusion import VasicekProcess
+
+from pystochastic.processes.diffusion import VasicekProcess
 
 
 def test_vasicek_str_repr(speed, mean, vol, t):

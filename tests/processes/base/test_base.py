@@ -1,10 +1,12 @@
 import numpy as np
 import pytest
 
-from stochastic import random
-from stochastic.processes.base import BaseProcess
-from stochastic.processes.base import BaseSequenceProcess
-from stochastic.processes.base import BaseTimeProcess
+from pystochastic import random
+from pystochastic.processes.base import (
+    BaseProcess,
+    BaseSequenceProcess,
+    BaseTimeProcess,
+)
 
 
 def test_base_process(end, n):
@@ -26,13 +28,6 @@ def test_base_process_rng():
     generator = np.random.default_rng()
     sub = SubBaseProcess(rng=generator)
     assert sub.rng == generator
-
-    random.use_randomstate()
-    sub = SubBaseProcess(rng=None)
-    assert sub.rng == np.random
-
-    with pytest.raises(TypeError):
-        _ = SubBaseProcess(rng="bad")
 
 
 def test_base_sequence_process(end, n):

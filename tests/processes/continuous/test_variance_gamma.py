@@ -1,6 +1,6 @@
 """Test VarianceGammaProcess."""
 
-from stochastic.processes.continuous import VarianceGammaProcess
+from pystochastic.processes.continuous import VarianceGammaProcess
 
 
 def test_variance_gamma_init(drift, variance, scale, t):

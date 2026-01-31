@@ -1,5 +1,6 @@
 """Test GaussianNoise."""
-from stochastic.processes.noise import GaussianNoise
+
+from pystochastic.processes.noise import GaussianNoise
 
 
 def test_gaussian_noise_str_repr(t):

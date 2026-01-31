@@ -1,7 +1,8 @@
 """Chinese restaurant tests."""
+
 import pytest
 
-from stochastic.processes.discrete import ChineseRestaurantProcess
+from pystochastic.processes.discrete import ChineseRestaurantProcess
 
 
 def test_chinese_restaurant_str_repr(discount, strength):

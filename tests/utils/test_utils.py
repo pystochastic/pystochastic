@@ -1,8 +1,10 @@
 import numpy as np
 
-from stochastic.utils import ensure_single_arg_constant_function
-from stochastic.utils import generate_times
-from stochastic.utils import single_arg_constant_function
+from pystochastic.utils import (
+    ensure_single_arg_constant_function,
+    generate_times,
+    single_arg_constant_function,
+)
 
 
 def test_generate_times(end, n):

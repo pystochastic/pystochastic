@@ -1,7 +1,8 @@
 """Test BrownianExcursion."""
+
 import pytest
 
-from stochastic.processes.continuous import BrownianExcursion
+from pystochastic.processes.continuous import BrownianExcursion
 
 
 def test_brownian_excursion_str_repr(t):

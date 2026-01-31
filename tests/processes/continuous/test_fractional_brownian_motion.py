@@ -1,6 +1,6 @@
 """Test FractionalBrownianMotion."""
 
-from stochastic.processes.continuous import FractionalBrownianMotion
+from pystochastic.processes.continuous import FractionalBrownianMotion
 
 
 def test_fractional_brownian_motion_str_repr(hurst, t):

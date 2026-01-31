@@ -1,7 +1,8 @@
 """Bernoulli tests."""
+
 import pytest
 
-from stochastic.processes.discrete import BernoulliProcess
+from pystochastic.processes.discrete import BernoulliProcess
 
 
 def test_bernoulli_str_repr(p):

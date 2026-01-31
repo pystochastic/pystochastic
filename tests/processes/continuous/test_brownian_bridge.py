@@ -1,7 +1,8 @@
 """Test BrownianBridge."""
+
 import pytest
 
-from stochastic.processes.continuous import BrownianBridge
+from pystochastic.processes.continuous import BrownianBridge
 
 
 def test_brownian_bridge_str_repr(b, t):

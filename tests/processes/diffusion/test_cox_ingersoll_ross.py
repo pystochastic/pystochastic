@@ -1,5 +1,6 @@
 """Cox-Ingersoll-Ross tests."""
-from stochastic.processes.diffusion import CoxIngersollRossProcess
+
+from pystochastic.processes.diffusion import CoxIngersollRossProcess
 
 
 def test_cox_ingersoll_ross_str_repr(speed, mean, vol, t):

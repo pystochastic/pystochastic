@@ -1,14 +1,17 @@
 """Noise process tests."""
+
 import numpy as np
 import pytest
 
-from stochastic.processes.noise import BlueNoise
-from stochastic.processes.noise import BrownianNoise
-from stochastic.processes.noise import ColoredNoise
-from stochastic.processes.noise import PinkNoise
-from stochastic.processes.noise import RedNoise
-from stochastic.processes.noise import VioletNoise
-from stochastic.processes.noise import WhiteNoise
+from pystochastic.processes.noise import (
+    BlueNoise,
+    BrownianNoise,
+    ColoredNoise,
+    PinkNoise,
+    RedNoise,
+    VioletNoise,
+    WhiteNoise,
+)
 
 
 # Floating point arithmetic comparison threshold

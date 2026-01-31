@@ -114,7 +114,7 @@ instance.
 
 .. code-block:: python
 
-    from stochastic.processes.discrete import BernoulliProcess
+    from pystochastic.processes.discrete import BernoulliProcess
 
 
     bp = BernoulliProcess(p=0.6)
@@ -138,7 +138,7 @@ instantiation.
 
 .. code-block:: python
 
-    from stochastic.processes.continuous import BrownianMotion
+    from pystochastic.processes.continuous import BrownianMotion
 
 
     bm = BrownianMotion(drift=1, scale=1, t=1)
@@ -156,7 +156,7 @@ steps. This is particularly useful for plotting your samples.
 .. code-block:: python
 
     import matplotlib.pyplot as plt
-    from stochastic.processes.continuous import FractionalBrownianMotion
+    from pystochastic.processes.continuous import FractionalBrownianMotion
 
 
     fbm = FractionalBrownianMotion(hurst=0.7, t=1)
@@ -178,7 +178,7 @@ process-specific implementations.
 
 .. code-block:: python
 
-    from stochastic.processes.noise import FractionalGaussianNoise
+    from pystochastic.processes.noise import FractionalGaussianNoise
 
 
     fgn = FractionalGaussianNoise(hurst=0.6, t=1)
