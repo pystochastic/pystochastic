@@ -1,5 +1,6 @@
-"""Wiener process."""
-from pystochastic.processes.continuous.brownian_motion import BrownianMotion
+from numpy.random import Generator
+
+from .brownian_motion import BrownianMotion
 
 
 class WienerProcess(BrownianMotion):
@@ -13,11 +14,21 @@ class WienerProcess(BrownianMotion):
     :param numpy.random.Generator rng: a custom random number generator
     """
 
-    def __init__(self, t=1, rng=None):
-        super().__init__(drift=0, scale=1, t=t, rng=rng)
+    def __init__(
+        self,
+        *,
+        t: float = 1.0,
+        rng: Generator | None = None,
+    ) -> None:
+        super().__init__(
+            drift=0.0,
+            scale=1.0,
+            t=t,
+            rng=rng,
+        )
 
-    def __str__(self):
-        return "Wiener process on [0, {t}]".format(t=str(self.t))
+    def __str__(self) -> str:
+        return f"Wiener process on [0, {self.t}]"
 
-    def __repr__(self):
-        return "WienerProcess(t={t})".format(t=str(self.t))
+    def __repr__(self) -> str:
+        return f"WienerProcess(t={self.t})"
