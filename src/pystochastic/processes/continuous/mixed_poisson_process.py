@@ -1,7 +1,7 @@
 """Mixed poisson processes."""
 
-from pystochastic.processes.continuous.poisson import PoissonProcess
-from pystochastic.utils.validation import check_nonnegative_number
+from ...utils.validation import check_nonnegative_number
+from .poisson_process import PoissonProcess
 
 
 class MixedPoissonProcess(PoissonProcess):
@@ -36,7 +36,9 @@ class MixedPoissonProcess(PoissonProcess):
 
     def __repr__(self):
         return "MixedPoissonProcess(rate_func={rf}, rate_args={ra}, rate_kwargs={rkw})".format(
-            rf=str(self.rate_func), ra=str(self.rate_args), rkw=str(self.rate_kwargs)
+            rf=str(self.rate_func),
+            ra=str(self.rate_args),
+            rkw=str(self.rate_kwargs),
         )
 
     @property

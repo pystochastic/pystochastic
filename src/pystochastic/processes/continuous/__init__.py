@@ -7,13 +7,13 @@ from .cauchy_process import CauchyProcess
 from .fractional_brownian_motion import FractionalBrownianMotion
 from .gamma_process import GammaProcess
 from .geometric_brownian_motion import GeometricBrownianMotion
-from .inverse_gaussian import InverseGaussianProcess
-from .mixed_poisson import MixedPoissonProcess
+from .inverse_gaussian_process import InverseGaussianProcess
+from .mixed_poisson_process import MixedPoissonProcess
 from .multifractional_brownian_motion import MultifractionalBrownianMotion
-from .poisson import PoissonProcess
-from .squared_bessel import SquaredBesselProcess
-from .variance_gamma import VarianceGammaProcess
-from .wiener import WienerProcess
+from .poisson_process import PoissonProcess
+from .squared_bessel_process import SquaredBesselProcess
+from .variance_gamma_process import VarianceGammaProcess
+from .wiener_process import WienerProcess
 
 __all__ = [
     "BesselProcess",

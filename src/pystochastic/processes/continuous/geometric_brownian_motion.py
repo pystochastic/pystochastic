@@ -1,19 +1,18 @@
-"""Geometric Brownian motion."""
+from typing import override
 
 import numpy as np
 import numpy.typing as npt
 from numpy.random import Generator
 
-from pystochastic.processes.base import BaseTimeProcess
-from pystochastic.processes.continuous.brownian_motion import BrownianMotion
-from pystochastic.utils.validation import (
+from ...utils.validation import (
     check_numeric,
     check_positive_integer,
     check_positive_number,
 )
+from .brownian_motion import BrownianMotion
 
 
-class GeometricBrownianMotion(BaseTimeProcess):
+class GeometricBrownianMotion(BrownianMotion):
     r"""Geometric Brownian motion process.
 
     .. image:: _static/geometric_brownian_motion.png
@@ -42,6 +41,7 @@ class GeometricBrownianMotion(BaseTimeProcess):
 
     def __init__(
         self,
+        *,
         drift: float = 0,
         volatility: float = 1,
         t: float = 1.0,
@@ -49,7 +49,6 @@ class GeometricBrownianMotion(BaseTimeProcess):
     ) -> None:
         super().__init__(t=t, rng=rng)
 
-        self._brownian_motion = BrownianMotion(t=t, rng=rng)
         self.drift = drift
         self.volatility = volatility
 
@@ -72,7 +71,7 @@ class GeometricBrownianMotion(BaseTimeProcess):
 
     @drift.setter
     def drift(self, value: float) -> None:
-        check_numeric(value, "Drift")
+        check_numeric(value=value, name="Drift")
 
         self.__drift = value
 
@@ -83,7 +82,7 @@ class GeometricBrownianMotion(BaseTimeProcess):
 
     @volatility.setter
     def volatility(self, value: float) -> None:
-        check_positive_number(value, "Volatility")
+        check_positive_number(value=value, name="Volatility")
 
         self.__volatility = value
 
@@ -93,13 +92,13 @@ class GeometricBrownianMotion(BaseTimeProcess):
         initial: float = 1.0,
     ) -> npt.NDArray[np.float64]:
         """Generate a realization of geometric Brownian motion."""
-        check_positive_integer(n)
-        check_positive_number(initial, "Initial")
+        check_positive_integer(n=n)
+        check_positive_number(value=initial, name="Initial")
 
         # Opt for repeated use
         self.set_times_with_t(self.drift - self.volatility**2 / 2.0, n)
 
-        noise = self.volatility * self._brownian_motion.sample(n)
+        noise = self.volatility * self._sample_brownian_motion(n)
 
         return initial * np.exp(self.times + noise)
 
@@ -110,14 +109,29 @@ class GeometricBrownianMotion(BaseTimeProcess):
     ) -> npt.NDArray[np.float64]:
         """Generate a realization of geometric Brownian motion."""
         line = [(self.drift - self.volatility**2 / 2.0) * t for t in times]
-        noise = self.volatility * self._brownian_motion.sample_at(times)
+        noise = self.volatility * self._sample_brownian_motion_at(times)
 
         ret = initial * np.exp(line + noise)
         assert isinstance(ret, np.ndarray)
 
         return ret
 
-    def sample(self, n: int, initial: float = 1) -> npt.NDArray[np.float64]:
+    @override
+    def sample(self, n: int) -> npt.NDArray[np.float64]:
+        return self._sample_geometric_brownian_motion(n, 1.0)
+
+    @override
+    def sample_at(
+        self,
+        times: npt.NDArray[np.float64],
+    ) -> npt.NDArray[np.float64]:
+        return self._sample_geometric_brownian_motion_at(times, 1.0)
+
+    def sample_with_initial(
+        self,
+        n: int,
+        initial: float = 1.0,
+    ) -> npt.NDArray[np.float64]:
         """Generate a realization.
 
         :param int n: the number of increments to generate.
@@ -125,10 +139,10 @@ class GeometricBrownianMotion(BaseTimeProcess):
         """
         return self._sample_geometric_brownian_motion(n, initial)
 
-    def sample_at(
+    def sample_at_with_initial(
         self,
         times: npt.NDArray[np.float64],
-        initial: float = 1,
+        initial: float = 1.0,
     ) -> npt.NDArray[np.float64]:
         """Generate a realization using specified times.
 
