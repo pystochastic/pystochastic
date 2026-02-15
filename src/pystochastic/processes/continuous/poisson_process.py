@@ -1,13 +1,15 @@
-"""Poisson processes."""
+from typing import override
 
 import numpy as np
+import numpy.typing as npt
+from numpy.random import Generator
 
-from pystochastic.processes.base import BaseProcess
-from pystochastic.utils.validation import (
+from ...utils.validation import (
     check_nonnegative_number,
     check_positive_integer,
     check_positive_number,
 )
+from ..base import BaseProcess
 
 
 class PoissonProcess(BaseProcess):
@@ -26,41 +28,53 @@ class PoissonProcess(BaseProcess):
     :param numpy.random.Generator rng: a custom random number generator
     """
 
-    def __init__(self, rate=1, rng=None):
+    def __init__(
+        self,
+        *,
+        rate: float = 1,
+        rng: Generator | None = None,
+    ) -> None:
         super().__init__(rng=rng)
+
         self.rate = rate
 
-    def __str__(self):
-        return "Poisson process with rate {r}.".format(r=str(self.rate))
+    def __str__(self) -> str:
+        return f"Poisson process with rate {self.rate}."
 
-    def __repr__(self):
-        return "PoissonProcess(rate={r})".format(r=str(self.rate))
+    def __repr__(self) -> str:
+        return f"PoissonProcess(rate={self.rate})"
 
     @property
-    def rate(self):
+    def rate(self) -> float:
         """Rate parameter."""
-        return self._rate
+        return self.__rate
 
     @rate.setter
-    def rate(self, value):
-        check_nonnegative_number(value, "Arrival rate")
-        self._rate = value
+    def rate(self, value: float) -> None:
+        check_nonnegative_number(value=value, name="Arrival rate")
 
-    def _sample_poisson_process(self, n=None, length=None):
+        self.__rate = value
+
+    def _sample_poisson_process(
+        self,
+        n: int | None = None,
+        length: float | None = None,
+    ) -> npt.NDArray[np.float64]:
         """Generate a realization of a Poisson process.
 
         Generate a poisson process sample up to count of length if time=False,
         otherwise generate a sample up to time t=length if time=True
         """
         if n is not None:
-            check_positive_integer(n)
+            check_positive_integer(n=n)
 
             exponentials = self.rng.exponential(scale=1.0 / self.rate, size=n)
 
             s = np.array([0] + list(np.cumsum(exponentials)))
             return s
-        elif length is not None:
-            check_positive_number(length, "Sample length")
+
+        if length is not None:
+            check_positive_number(value=length, name="Sample length")
 
             t = 0
             times = [0]
@@ -71,16 +85,18 @@ class PoissonProcess(BaseProcess):
                 times.append(t)
 
             return np.array(times)
-        else:
-            raise ValueError("Must provide either argument n or length.")
 
-    def sample(self, n=None, length=None):
+        raise ValueError("Must provide either argument n or length.")
+
+    @override
+    def sample(
+        self,
+        n: int,
+    ) -> npt.NDArray[np.float64]:
         """Generate a realization.
 
         Exactly one of `n` and `length` must be provided.
 
         :param int n: the number of arrivals to simulate
-        :param int length: the length of time to simulate; will generate
-            arrivals until length is met or exceeded.
         """
-        return self._sample_poisson_process(n, length)
+        return self._sample_poisson_process(n)

@@ -1,5 +1,3 @@
-"""Squared Bessel process."""
-
 from typing import override
 
 import numpy as np
@@ -26,9 +24,21 @@ class SquaredBesselProcess(BesselProcess):
         for the process
     """
 
-    def _sample_squared_bessel_process(self, n):
+    def __str__(self) -> str:
+        return (
+            f"Squared Bessel process of {self.dim} Wiener processes on "
+            f"[0, {self.t}]"
+        )
+
+    def __repr__(self) -> str:
+        return f"SquaredBesselProcess(dim={self.dim}, t={self.t})"
+
+    def _sample_squared_bessel_process(
+        self,
+        n: int,
+    ) -> npt.NDArray[np.float64]:
         """Generate a realization of a squared Bessel process."""
-        check_positive_integer(n)
+        check_positive_integer(n=n)
 
         samples = [self._sample_brownian_motion(n) for _ in range(self.dim)]
 
@@ -36,7 +46,10 @@ class SquaredBesselProcess(BesselProcess):
             [sum(map(lambda x: x**2, coord)) for coord in zip(*samples)]
         )
 
-    def _sample_squared_bessel_process_at(self, times):
+    def _sample_squared_bessel_process_at(
+        self,
+        times: npt.NDArray[np.float64],
+    ) -> npt.NDArray[np.float64]:
         """Generate a realization of a squared Bessel process."""
         samples = [
             self._sample_brownian_motion_at(times) for _ in range(self.dim)
@@ -54,7 +67,10 @@ class SquaredBesselProcess(BesselProcess):
         """
         return self._sample_squared_bessel_process(n)
 
-    def sample_at(self, times):
+    @override
+    def sample_at(
+        self, times: npt.NDArray[np.float64]
+    ) -> npt.NDArray[np.float64]:
         """Generate a realization using specified times.
 
         :param times: a vector of increasing time values at which to generate
