@@ -1,10 +1,9 @@
-"""Inverse Gaussian process."""
-
 import inspect
-from typing import override
+from typing import Callable, override
 
 import numpy as np
 import numpy.typing as npt
+from numpy.random import Generator
 
 from pystochastic.processes.base import BaseTimeProcess
 from pystochastic.utils.validation import check_positive_number
@@ -38,89 +37,110 @@ class InverseGaussianProcess(BaseTimeProcess):
     :param numpy.random.Generator rng: a custom random number generator
     """
 
-    def __init__(self, mean=None, scale=1, t=1, rng=None):
+    def __init__(
+        self,
+        *,
+        mean: Callable[[float], float] = lambda x: x,
+        scale: float = 1.0,
+        t: float = 1.0,
+        rng: Generator | None = None,
+    ):
         super().__init__(t=t, rng=rng)
-        if mean is None:
-            self.mean = lambda x: x
-        else:
-            self.mean = mean
-        self.scale = scale
-        self._ms = None
 
-    def __str__(self):
-        s = "Inverse Gaussian process with mean {m} and scale {s} on interval [0, {t}]."
-        return s.format(
-            t=str(self.t), m=str(self.mean.__name__), s=str(self.scale)
+        self.mean = mean
+        self.scale = scale
+
+        self.__ms: npt.NDArray[np.float64] | None = None
+
+    def __str__(self) -> str:
+        return (
+            f"Inverse Gaussian process with mean {self.mean.__name__} "
+            f"and scale {self.scale} on interval [0, {self.t}]."
         )
 
-    def __repr__(self):
-        return "InverseGaussianProcess(mean={m}, scale={s}, t={t})".format(
-            t=str(self.t), m=str(self.mean.__name__), s=str(self.scale)
+    def __repr__(self) -> str:
+        return (
+            f"InverseGaussianProcess(mean={self.mean.__name__}, "
+            f"scale={self.scale}, t={self.t})"
         )
 
     @property
-    def mean(self):
+    def mean(self) -> Callable[[float], float]:
         """Mean function."""
-        return self._mean
+        return self.__mean
 
     @mean.setter
-    def mean(self, value):
+    def mean(self, value: Callable[[float], float]) -> None:
+        if not callable(value):
+            raise TypeError(
+                f"Mean must be a callable function; got {type(value)}."
+            )
+
         try:
             num_args = len(inspect.signature(value).parameters)
-        except Exception:
+        except Exception as e:
+            raise TypeError("Mean must be an inspectable callable.") from e
+
+        if num_args != 1:
             raise ValueError("Mean must be a function of one argument.")
-        if not callable(value) or num_args != 1:
-            raise ValueError("Mean must be a function of one argument.")
-        self._mean = value
+
+        self.__mean = value
 
     @property
-    def scale(self):
+    def scale(self) -> float:
         """Scale parameter."""
-        return self._scale
+        return self.__scale
 
     @scale.setter
-    def scale(self, value):
-        check_positive_number(value, "Scale")
-        self._scale = value
+    def scale(self, value: float) -> None:
+        check_positive_number(value=value, name="Scale")
 
-    def _check_mean(self, left, right):
+        self.__scale = value
+
+    def _check_mean(self, left: float, right: float) -> float:
         """Check the validity of the mean function."""
         delta = self.mean(right) - self.mean(left)
+
         if delta <= 0:
             raise ValueError("Mean must be monotonically increasing.")
+
         return delta
 
-    def _sample_inverse_gaussian_process(self, n):
+    def _sample_inverse_gaussian_process(
+        self,
+        n: int,
+    ) -> npt.NDArray[np.float64]:
         """Generate a realization of the inverse Gaussian process.
 
         Generate an inverse Gaussian process realization with n increments.
         """
         if self.set_times(n):
-            self._ms = []
+            self.__ms = np.zeros(n)
             for k in range(n):
-                self._ms.append(
-                    self._check_mean(self.times[k], self.times[k + 1])
+                self.__ms[k] = self._check_mean(
+                    self.times[k],
+                    self.times[k + 1],
                 )
-            self._ms = np.array(self._ms)
 
-        ls = np.array([self.scale * m**2 for m in self._ms])
+        assert self.__ms is not None
+        ls = np.array([self.scale * m**2 for m in self.__ms])
 
         gn = self.rng.normal(size=n)
         ys = gn**2
 
         xs = (
-            self._ms
-            + self._ms**2 * ys / 2 / ls
-            - self._ms
+            self.__ms
+            + self.__ms**2 * ys / 2 / ls
+            - self.__ms
             / 2
             / ys
-            * np.sqrt(4 * self._ms * ls * ys + self._ms**2 * ys**2)
+            * np.sqrt(4 * self.__ms * ls * ys + self.__ms**2 * ys**2)
         )
 
         zs = self.rng.uniform(size=n)
 
         ign = []
-        for z, x, m in zip(zs, xs, self._ms):
+        for z, x, m in zip(zs, xs, self.__ms):
             if z <= m / (m + x):
                 ign.append(x)
             else:
@@ -132,22 +152,20 @@ class InverseGaussianProcess(BaseTimeProcess):
 
     @override
     def sample(self, n: int) -> npt.NDArray[np.float64]:
-        """Generate a realization.
-
-        :param int n: the number of increments to generate
-        """
         return self._sample_inverse_gaussian_process(n)
 
-    def _sample_inverse_gaussian_process_at(self, times):
+    def _sample_inverse_gaussian_process_at(
+        self,
+        times: npt.NDArray[np.float64],
+    ) -> npt.NDArray[np.float64]:
         """Generate an inverse Gaussian process at specified times."""
         n = len(times) - 1
         if times[0] != 0:
             times = np.concatenate(([0], times))
 
-        ms = []
+        ms = np.zeros(n)
         for k in range(n):
-            ms.append(self._check_mean(times[k], times[k + 1]))
-        ms = np.array(ms)
+            ms[k] = self._check_mean(times[k], times[k + 1])
 
         ls = np.array([self.scale * m**2 for m in ms])
 
@@ -175,10 +193,8 @@ class InverseGaussianProcess(BaseTimeProcess):
 
         return ig
 
-    def sample_at(self, times):
-        """Generate a realization using specified times.
-
-        :param times: a vector of increasing time values at which to generate
-            the realization
-        """
+    def sample_at(
+        self,
+        times: npt.NDArray[np.float64],
+    ) -> npt.NDArray[np.float64]:
         return self._sample_inverse_gaussian_process_at(times)
