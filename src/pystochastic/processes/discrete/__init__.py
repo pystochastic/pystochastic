@@ -1,8 +1,8 @@
-from .bernoulli import BernoulliProcess
-from .chinese_restaurant import ChineseRestaurantProcess
-from .dirichlet import DirichletProcess
+from .bernoulli_process import BernoulliProcess
+from .chinese_restaurant_process import ChineseRestaurantProcess
+from .dirichlet_process import DirichletProcess
 from .markov_chain import MarkovChain
-from .moran import MoranProcess
+from .moran_process import MoranProcess
 from .random_walk import RandomWalk
 
 __all__ = [
