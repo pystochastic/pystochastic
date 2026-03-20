@@ -1,13 +1,12 @@
-"""Multifractional Brownian motion."""
-
 import inspect
-from typing import override
+from typing import Callable, override
 
 import numpy as np
 import numpy.typing as npt
+from numpy.random import Generator
 from scipy.special import gamma
 
-from pystochastic.processes.base import BaseTimeProcess
+from ..base import BaseTimeProcess
 
 
 class MultifractionalBrownianMotion(BaseTimeProcess):
@@ -34,7 +33,7 @@ class MultifractionalBrownianMotion(BaseTimeProcess):
       processes using multifractional Brownian motion of Riemann-Liouville
       type." Physical Review E 63, no. 4 (2001): 046104.
 
-    :param float hurst: a callable with one argument :math:`h(t)` such that
+    :param Callable[[float], float] hurst: a callable with one argument :math:`h(t)` such that
         :math:`h(t') \in (0, 1) \forall t' \in [0, t]`. Default is
         :math:`h(t) = 0.5`.
     :param float t: the right hand endpoint of the time interval :math:`[0,t]`
@@ -42,78 +41,85 @@ class MultifractionalBrownianMotion(BaseTimeProcess):
     :param numpy.random.Generator rng: a custom random number generator
     """
 
-    def __init__(self, hurst=None, t=1, rng=None):
+    def __init__(
+        self,
+        *,
+        hurst: Callable[[float], float] | None = None,
+        t: float = 1.0,
+        rng: Generator | None = None,
+    ) -> None:
         super().__init__(t=t, rng=rng)
 
         self.hurst = hurst if hurst is not None else lambda x: 0.5
 
     def __str__(self) -> str:
         return (
-            "Multifractional Brownian motion with Hurst function "
-            + "{h} on [0, {t}].".format(t=str(self.t), h=self.hurst.__name__)
+            f"Multifractional Brownian motion with Hurst function {self.hurst.__name__} "
+            f"on [0, {self.t}]."
         )
 
     def __repr__(self) -> str:
-        return "FractionalBrownianMotion(hurst={h}, t={t})".format(
-            t=str(self.t), h=self.hurst.__name__
-        )
+        return f"MultifractionalBrownianMotion(hurst={self.hurst.__name__}, t={self.t})"
 
     @property
-    def hurst(self):
+    def hurst(self) -> Callable[[float], float]:
         """Hurst function."""
         return self._hurst
 
     @hurst.setter
-    def hurst(self, value):
+    def hurst(self, value: Callable[[float], float]) -> None:
         try:
             num_args = len(inspect.signature(value).parameters)
-        except Exception:
-            raise ValueError(
-                "Hurst parameter must be a function of one argument."
-            )
+        except Exception as e:
+            raise TypeError("Hurst parameter must be an inspectable function.") from e
+
         if not callable(value) or num_args != 1:
-            raise ValueError(
-                "Hurst parameter must be a function of one argument."
-            )
+            raise TypeError("Hurst parameter must be a function of one argument.")
+
         self._hurst = value
-        self._changed = True
 
-    def _check_hurst(self, value):
-        self._hs = [value(t) for t in self.times]
-        for h in self._hs:
+    def _get_hurst(self, value: Callable[[float], float]) -> list[float]:
+        hs = [0.0] * len(self.times)
+        for i, t in enumerate(self.times):
+            h = value(t)
             if h <= 0 or h >= 1:
-                raise ValueError("Hurst range must be on interval (0, 1).")
+                raise ValueError(f"Hurst range must be on interval (0, 1). Got {h} for t={t}.")
+            hs[i] = h
 
-    def _sample_multifractional_brownian_motion(self, n):
+        return hs
+
+    def _w(
+        self,
+        t: float,
+        hurst: float,
+        dt: float,
+    ) -> float:
+        """Get the Riemann-Liouville method weight for time t."""
+        w = float(
+            1.0
+            / gamma(hurst + 0.5)
+            * np.sqrt((t ** (2 * hurst) - (t - dt) ** (2 * hurst)) / (2 * hurst * dt))
+        )
+        return w
+
+    def _sample_multifractional_brownian_motion(self, n: int) -> npt.NDArray[np.float64]:
         """Generate Riemann-Liouville mBm."""
         gn = self.rng.normal(0.0, 1.0, n)
         self.set_times(n)
-        self._dt = 1.0 * self.t / self.n
-        self._check_hurst(self.hurst)
+
+        dt = 1.0 * self.t / self.n
+        hs = self._get_hurst(self.hurst)
+
         mbm = [0]
-        coefs = [(g / np.sqrt(self._dt)) * self._dt for g in gn]
+        coefs = [(g / np.sqrt(dt)) * dt for g in gn]
+
         for k in range(1, self.n + 1):
-            weights = [self._w(t, self._hs[k]) for t in self.times[1 : k + 1]]
+            weights = [self._w(t, hs[k], dt) for t in self.times[1 : k + 1]]
             seq = [coefs[i - 1] * weights[k - i] for i in range(1, k + 1)]
             mbm.append(sum(seq))
+
         return np.array(mbm)
 
     @override
     def sample(self, n: int) -> npt.NDArray[np.float64]:
-        """Generate a realization.
-
-        :param int n: the number of increments to generate
-        """
         return self._sample_multifractional_brownian_motion(n)
-
-    def _w(self, t, hurst):
-        """Get the Riemann-Liouville method weight for time t."""
-        w = (
-            1.0
-            / gamma(hurst + 0.5)
-            * np.sqrt(
-                (t ** (2 * hurst) - (t - self._dt) ** (2 * hurst))
-                / (2 * hurst * self._dt)
-            )
-        )
-        return w

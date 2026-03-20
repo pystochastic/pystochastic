@@ -1,20 +1,18 @@
-"""Variance gamma process."""
-
 from typing import override
 
 import numpy as np
 import numpy.typing as npt
+from numpy.random import Generator
 
-from pystochastic.processes.base import BaseTimeProcess
-from pystochastic.processes.noise import GaussianNoise
-from pystochastic.utils.validation import (
+from ...utils.validation import (
     check_numeric,
     check_positive_integer,
     check_positive_number,
 )
+from ..noise import GaussianNoise
 
 
-class VarianceGammaProcess(BaseTimeProcess):
+class VarianceGammaProcess(GaussianNoise):
     r"""Variance Gamma process.
 
     .. image:: _static/variance_gamma_process.png
@@ -39,53 +37,74 @@ class VarianceGammaProcess(BaseTimeProcess):
     :param numpy.random.Generator rng: a custom random number generator
     """
 
-    def __init__(self, drift=0, variance=1, scale=1, t=1, rng=None):
+    def __init__(
+        self,
+        *,
+        drift: float = 0.0,
+        variance: float = 1.0,
+        scale: float = 1.0,
+        t: float = 1.0,
+        rng: Generator | None = None,
+    ) -> None:
         super().__init__(t=t, rng=rng)
+
         self.drift = drift
         self.variance = variance
         self.scale = scale
-        self.gn = GaussianNoise(t)
+
+    def __str__(self) -> str:
+        return (
+            f"Variance Gamma process on interval [0, {self.t}] with drift "
+            f"{self.drift}, variance {self.variance}, and scale {self.scale}."
+        )
+
+    def __repr__(self) -> str:
+        return (
+            f"VarianceGammaProcess(drift={self.drift}, variance={self.variance}, "
+            f"scale={self.scale}, t={self.t})"
+        )
 
     @property
-    def drift(self):
+    def drift(self) -> float:
         """Drift parameter."""
-        return self._drift
+        return self.__drift
 
     @drift.setter
-    def drift(self, value):
-        check_numeric(value, "Drift")
-        self._drift = value
+    def drift(self, value: float) -> None:
+        check_numeric(value=value, name="Drift")
+
+        self.__drift = value
 
     @property
-    def variance(self):
+    def variance(self) -> float:
         """Variance parameter."""
-        return self._variance
+        return self.__variance
 
     @variance.setter
-    def variance(self, value):
-        check_positive_number(value, "Variance")
-        self._variance = value
+    def variance(self, value: float) -> None:
+        check_positive_number(value=value, name="Variance")
+        self.__variance = value
 
     @property
-    def scale(self):
+    def scale(self) -> float:
         """Scale parameter."""
-        return self._scale
+        return self.__scale
 
     @scale.setter
-    def scale(self, value):
-        check_positive_number(value, "Scale")
-        self._scale = value
+    def scale(self, value: float) -> None:
+        check_positive_number(value=value, name="Scale")
+        self.__scale = value
 
-    def _sample_variance_gamma_process(self, n):
+    def _sample_variance_gamma_process(self, n: int) -> npt.NDArray[np.float64]:
         """Generate a realization of a variance gamma process."""
-        check_positive_integer(n)
+        check_positive_integer(n=n, name="n")
 
         delta_t = 1.0 * self.t / n
         shape = delta_t / self.variance
         scale = self.variance
 
         gammas = self.rng.gamma(shape=shape, scale=scale, size=n)
-        gn = self.gn.sample(n)
+        gn = super().sample(n)
 
         increments = self.drift * gammas + self.scale * np.sqrt(gammas) * gn
 
@@ -93,7 +112,10 @@ class VarianceGammaProcess(BaseTimeProcess):
 
         return np.concatenate(([0], samples))
 
-    def _sample_variance_gamma_process_at(self, times):
+    def _sample_variance_gamma_process_at(
+        self,
+        times: npt.NDArray[np.float64],
+    ) -> npt.NDArray[np.float64]:
         """Generate a realization of a variance gamma process."""
         if times[0] != 0:
             zero = False
@@ -106,11 +128,15 @@ class VarianceGammaProcess(BaseTimeProcess):
 
         gammas = np.array(
             [
-                self.rng.gamma(shape=shape, scale=scale, size=1)[0]
+                self.rng.gamma(
+                    shape=shape,
+                    scale=scale,
+                    size=1,
+                )[0]
                 for shape in shapes
             ]
         )
-        gn = self.gn.sample_at(times)
+        gn = super().sample_at(times)
 
         increments = self.drift * gammas + self.scale * np.sqrt(gammas) * gn
 
@@ -121,16 +147,8 @@ class VarianceGammaProcess(BaseTimeProcess):
 
     @override
     def sample(self, n: int) -> npt.NDArray[np.float64]:
-        """Generate a realization.
-
-        :param int n: the number of increments to generate
-        """
         return self._sample_variance_gamma_process(n)
 
-    def sample_at(self, times):
-        """Generate a realization using specified times.
-
-        :param times: a vector of increasing time values at which to generate
-            the realization
-        """
+    @override
+    def sample_at(self, times: npt.NDArray[np.float64]) -> npt.NDArray[np.float64]:
         return self._sample_variance_gamma_process_at(times)
