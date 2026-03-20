@@ -1,4 +1,4 @@
-from typing import Any, Callable
+from typing import Any, Callable, override
 
 import numpy as np
 import numpy.typing as npt
@@ -48,6 +48,7 @@ class DiffusionProcess(GaussianNoise):
 
     def __init__(
         self,
+        *,
         speed: Callable[[Any], float | int] | float | int = 1,
         mean: Callable[[Any], float | int] | float | int = 0,
         vol: Callable[[Any], float | int] | float | int = 1,
@@ -75,69 +76,71 @@ class DiffusionProcess(GaussianNoise):
         )
 
     @property
-    def speed(self) -> Callable[[Any], float | int] | float | int:
+    def speed(self) -> Callable[[Any], float | int]:
         """Speed, or :math:`\theta_t`."""
-        return self._speed
+        return self.__speed
 
     @speed.setter
     def speed(self, value: Callable[[Any], float | int] | float | int) -> None:
-        check_numeric_or_single_arg_callable(value, "speed")
-        self._speed = ensure_single_arg_constant_function(value)
+        check_numeric_or_single_arg_callable(value=value, name="speed")
+
+        self.__speed = ensure_single_arg_constant_function(value=value)
 
     @property
-    def mean(self) -> Callable[[Any], float | int] | float | int:
+    def mean(self) -> Callable[[Any], float | int]:
         r"""Mean, or :math:`\mu_t`."""
-        return self._mean
+        return self.__mean
 
     @mean.setter
     def mean(self, value: Callable[[Any], float | int] | float | int) -> None:
-        check_numeric_or_single_arg_callable(value, "mean")
-        self._mean = ensure_single_arg_constant_function(value)
+        check_numeric_or_single_arg_callable(value=value, name="mean")
+        self.__mean = ensure_single_arg_constant_function(value=value)
 
     @property
-    def vol(self) -> Callable[[Any], float | int] | float | int:
+    def vol(self) -> Callable[[Any], float | int]:
         r"""Volatility, or :math:`\sigma_t`."""
-        return self._vol
+        return self.__vol
 
     @vol.setter
     def vol(self, value: Callable[[Any], float | int] | float | int) -> None:
-        check_numeric_or_single_arg_callable(value, "vol")
-        self._vol = ensure_single_arg_constant_function(value)
+        check_numeric_or_single_arg_callable(value=value, name="vol")
+        self.__vol = ensure_single_arg_constant_function(value=value)
 
     @property
-    def volexp(self) -> Callable[[Any], float | int] | float | int:
+    def volexp(self) -> Callable[[Any], float | int]:
         r"""Volatility exponent, or :math:`\gamma_t`."""
-        return self._volexp
+        return self.__volexp
 
     @volexp.setter
     def volexp(
         self,
         value: Callable[[Any], float | int] | float | int,
     ) -> None:
-        check_numeric_or_single_arg_callable(value, "volexp")
-        self._volexp = ensure_single_arg_constant_function(value)
+        check_numeric_or_single_arg_callable(value=value, name="volexp")
+        self.__volexp = ensure_single_arg_constant_function(value=value)
 
     def _sample(self, n: int, initial: float = 1.0) -> npt.NDArray[np.float64]:
         """Generate a realization of a diffusion process using
         Euler-Maruyama."""
-        check_positive_integer(n)
-        check_numeric(initial, "Initial")
+        check_positive_integer(n=n)
+        check_numeric(value=initial, name="Initial")
 
         delta_t = 1.0 * self.t / n
         gns = self._sample_gaussian_noise(n)
 
         s = [initial]
-        t = 0
+        t = 0.0
         for k in range(n):
             t += delta_t
             initial += (
-                self._speed(t) * (self._mean(t) - initial) * delta_t
-                + self._vol(t) * initial ** self._volexp(initial) * gns[k]
+                self.__speed(t) * (self.__mean(t) - initial) * delta_t
+                + self.__vol(t) * initial ** self.__volexp(initial) * gns[k]
             )
             s.append(initial)
 
         return np.array(s)
 
+    @override
     def sample(self, n: int, initial: float = 1.0) -> npt.NDArray[np.float64]:
         """Generate a realization.
 
@@ -145,3 +148,15 @@ class DiffusionProcess(GaussianNoise):
         :param float initial: the initial value of the process
         """
         return self._sample(n, initial)
+
+    @override
+    def sample_at(
+        self,
+        times: npt.NDArray[np.float64],
+        initial: float = 1.0,
+    ) -> npt.NDArray[np.float64]:
+        raise NotImplementedError(
+            "Sampling at specific times is not implemented for the general "
+            "diffusion process. Please use the sample method with a specified "
+            "number of increments."
+        )

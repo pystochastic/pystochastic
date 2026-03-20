@@ -2,7 +2,7 @@ from typing import Any, Callable
 
 from numpy.random import Generator
 
-from .diffusion import DiffusionProcess
+from .diffusion_process import DiffusionProcess
 
 
 class ExtendedVasicekProcess(DiffusionProcess):
@@ -41,6 +41,7 @@ class ExtendedVasicekProcess(DiffusionProcess):
 
     def __init__(
         self,
+        *,
         speed: Callable[[Any], float | int] | float | int = 1,
         mean: Callable[[Any], float | int] | float | int = 0,
         vol: Callable[[Any], float | int] | float | int = 1,

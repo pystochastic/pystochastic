@@ -1,6 +1,10 @@
-from ...utils import ensure_single_arg_constant_function, single_arg_constant_function
+from typing import Any, Callable
+
+from numpy.random import Generator
+
+from ...utils import ensure_single_arg_constant_function
 from ...utils.validation import check_numeric
-from .diffusion import DiffusionProcess
+from .diffusion_process import DiffusionProcess
 
 
 class ConstantElasticityVarianceProcess(DiffusionProcess):
@@ -34,34 +38,42 @@ class ConstantElasticityVarianceProcess(DiffusionProcess):
     :param numpy.random.Generator rng: a custom random number generator
     """
 
-    def __init__(self, drift=1, vol=1, volexp=1, t=1, rng=None):
+    def __init__(
+        self,
+        *,
+        drift: float = 1.0,
+        vol: float = 1.0,
+        volexp: float = 1.0,
+        t: float = 1.0,
+        rng: Generator | None = None,
+    ) -> None:
         super().__init__(
-            speed=single_arg_constant_function(-drift),
-            mean=single_arg_constant_function(1),
-            vol=single_arg_constant_function(vol),
-            volexp=single_arg_constant_function(volexp),
+            speed=-drift,
+            mean=1.0,
+            vol=vol,
+            volexp=volexp,
             t=t,
             rng=rng,
         )
-        self.drift = drift
 
     def __str__(self) -> str:
-        return "Constant elasticity of variance process with drift={m}, vol={v}, volexp={e} on [0, {t}]".format(
-            m=str(self.drift), v=str(self.vol), e=str(self.volexp), t=str(self.t)
+        return (
+            f"Constant elasticity of variance process with drift={self.drift}, "
+            f"vol={self.vol}, volexp={self.volexp} on [0, {self.t}]"
         )
 
     def __repr__(self) -> str:
-        return "ConstantElasticityVarianceProcess(drift={d}, vol={v}, volexp={e}, t={t})".format(
-            v=str(self.vol), d=str(self.drift), e=str(self.volexp), t=str(self.t)
+        return (
+            f"ConstantElasticityVarianceProcess(drift={self.drift}, vol={self.vol}, "
+            f"volexp={self.volexp}, t={self.t})"
         )
 
     @property
-    def drift(self):
+    def drift(self) -> Callable[[Any], float | int]:
         """Drift, or Mu."""
-        return self._drift
+        return lambda *args, **kwargs: -self.speed(*args, **kwargs)
 
     @drift.setter
-    def drift(self, value):
-        check_numeric(value, "Drift coefficient.")
-        self._drift = ensure_single_arg_constant_function(value)
-        self.speed = ensure_single_arg_constant_function(-value)
+    def drift(self, value: float) -> None:
+        check_numeric(value=value, name="Drift coefficient.")
+        self.speed = ensure_single_arg_constant_function(value=-value)

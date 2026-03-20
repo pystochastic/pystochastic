@@ -1,5 +1,6 @@
-from ...utils import single_arg_constant_function
-from .diffusion import DiffusionProcess
+from numpy.random import Generator
+
+from .diffusion_process import DiffusionProcess
 
 
 class CoxIngersollRossProcess(DiffusionProcess):
@@ -36,22 +37,32 @@ class CoxIngersollRossProcess(DiffusionProcess):
     :param numpy.random.Generator rng: a custom random number generator
     """
 
-    def __init__(self, speed=1, mean=0, vol=1, t=1, rng=None):
+    def __init__(
+        self,
+        *,
+        speed: float = 1.0,
+        mean: float = 0.0,
+        vol: float = 1.0,
+        t: float = 1.0,
+        rng: Generator | None = None,
+    ) -> None:
         super().__init__(
-            speed=single_arg_constant_function(speed),
-            mean=single_arg_constant_function(mean),
-            vol=single_arg_constant_function(vol),
-            volexp=single_arg_constant_function(0.5),
+            speed=speed,
+            mean=mean,
+            vol=vol,
+            volexp=0.5,
             t=t,
             rng=rng,
         )
 
     def __str__(self) -> str:
-        return "Cox-Ingersoll-Ross process with speed={s}, mean={m}, vol={v} on [0, {t}]".format(
-            s=str(self.speed), m=str(self.mean), v=str(self.vol), t=str(self.t)
+        return (
+            f"Cox-Ingersoll-Ross process with speed={self.speed}, mean={self.mean}, "
+            f"vol={self.vol} on [0, {self.t}]"
         )
 
     def __repr__(self) -> str:
-        return "CoxIngersollRossProcess(speed={s}, mean={m}, vol={v}, t={t})".format(
-            s=str(self.speed), m=str(self.mean), v=str(self.vol), t=str(self.t)
+        return (
+            f"CoxIngersollRossProcess(speed={self.speed}, mean={self.mean}, "
+            f"vol={self.vol}, t={self.t})"
         )
