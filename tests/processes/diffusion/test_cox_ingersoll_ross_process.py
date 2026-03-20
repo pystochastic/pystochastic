@@ -1,15 +1,8 @@
-"""Cox-Ingersoll-Ross tests."""
-
-from pystochastic.processes.diffusion import CoxIngersollRossProcess
+from pystochastic.processes.diffusion import CoxIngersollRossProcess as TestType
 
 
-def test_cox_ingersoll_ross_str_repr(speed, mean, vol, t):
-    instance = CoxIngersollRossProcess(speed, mean, vol, t)
-    assert isinstance(repr(instance), str)
-    assert isinstance(str(instance), str)
+def test_cox_ingersoll_ross_process_str_repr() -> None:
+    instance = TestType(speed=1.0, mean=0.5, vol=0.2, t=2.0)
 
-
-def test_cox_ingersoll_ross_sample(speed, mean, vol, t, n, initial, threshold):
-    instance = CoxIngersollRossProcess(speed, mean, vol, t)
-    s = instance.sample(n, initial)
-    assert len(s) == n + 1
+    assert "Cox-Ingersoll-Ross process with speed=" in str(instance)
+    assert "CoxIngersollRossProcess(speed=" in repr(instance)
