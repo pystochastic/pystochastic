@@ -1,6 +1,9 @@
-"""Mixed poisson processes."""
+from typing import Any, Callable, override
 
-from ...utils.validation import check_nonnegative_number
+import numpy as np
+import numpy.typing as npt
+from numpy.random import Generator
+
 from .poisson_process import PoissonProcess
 
 
@@ -25,82 +28,84 @@ class MixedPoissonProcess(PoissonProcess):
     :param numpy.random.Generator rng: a custom random number generator
     """
 
-    def __init__(self, rate_func, rate_args=None, rate_kwargs=None, rng=None):
-        self.rate_func = rate_func
-        self.rate_args = rate_args if rate_args is not None else tuple()
-        self.rate_kwargs = rate_kwargs if rate_kwargs is not None else dict()
-        super().__init__(rate=1, rng=rng)
+    def __init__(
+        self,
+        *,
+        rate_func: Callable[..., float],
+        rate_args: tuple[float, ...] | None = None,
+        rate_kwargs: dict[str, Any] | None = None,
+        rng: Generator | None = None,
+    ) -> None:
+        super().__init__(
+            rate=1.0,
+            rng=rng,
+        )
 
-    def __str__(self):
+        self.rate_func = rate_func
+        self.rate_args = rate_args or tuple()
+        self.rate_kwargs = rate_kwargs or {}
+
+    def __str__(self) -> str:
         return "Mixed Poisson process with random rate."
 
-    def __repr__(self):
-        return "MixedPoissonProcess(rate_func={rf}, rate_args={ra}, rate_kwargs={rkw})".format(
-            rf=str(self.rate_func),
-            ra=str(self.rate_args),
-            rkw=str(self.rate_kwargs),
+    def __repr__(self) -> str:
+        return (
+            f"MixedPoissonProcess(rate_func={self.rate_func}, "
+            f"rate_args={self.rate_args}, rate_kwargs={self.rate_kwargs})"
         )
 
     @property
-    def rate_func(self):
+    def rate_func(self) -> Callable[..., float]:
         """Current rate's distribution."""
-        return self._rate_func
+        return self.__rate_func
 
     @rate_func.setter
-    def rate_func(self, value):
+    def rate_func(self, value: Callable[..., float]) -> None:
         if not callable(value):
-            raise ValueError("Rate function must be a callable.")
-        self._rate_func = value
+            raise TypeError("Rate function must be a callable.")
+        self.__rate_func = value
 
     @property
-    def rate_args(self):
+    def rate_args(self) -> tuple[float, ...]:
         """Positional arguments for the rate function."""
-        return self._rate_args
+        return self.__rate_args
 
     @rate_args.setter
-    def rate_args(self, value):
+    def rate_args(self, value: tuple[float, ...]) -> None:
         if not isinstance(value, (list, tuple)):
-            raise ValueError("Rate args must be a list or tuple.")
-        self._rate_args = value
+            raise TypeError("Rate args must be a list or tuple.")
+        self.__rate_args = tuple(value)
 
     @property
-    def rate_kwargs(self):
+    def rate_kwargs(self) -> dict[str, Any]:
         """Keyword arguments for the rate function."""
-        return self._rate_kwargs
+        return self.__rate_kwargs
 
     @rate_kwargs.setter
-    def rate_kwargs(self, value):
+    def rate_kwargs(self, value: dict[str, Any]) -> None:
         if not isinstance(value, dict):
-            raise ValueError("Rate kwargs must be a dict.")
-        self._rate_kwargs = value
+            raise TypeError("Rate kwargs must be a dict.")
+        self.__rate_kwargs = value
 
-    @property
-    def rate(self):
-        """The most recently generated rate.
-
-        Attempting to get the rate prior to generating a sample will raise
-        an ``AttributeError``."""
-        return self._rate
-
-    @rate.setter
-    def rate(self, value):
-        check_nonnegative_number(value, "Arrival rate")
-        self._rate = value
-
-    def _sample_rate(self):
+    def _sample_rate(self) -> float:
         """Generate a rate variate."""
-        return self.rate_func(*self.rate_args, **self.rate_kwargs)
+        return self.rate_func(
+            *self.rate_args,
+            **self.rate_kwargs,
+        )
 
-    def sample(self, n=None, length=None):
-        """Generate a realization.
-
-        Exactly one of `n` and `length` must be provided. Generates a random
-        variate for the rate, then generates a Poisson process realization
-        using this rate.
-
-        :param int n: the number of arrivals to simulate
-        :param int length: the length of time to simulate; will generate
-            arrivals until length is met or exceeded.
-        """
+    @override
+    def sample(
+        self,
+        n: int,
+    ) -> npt.NDArray[np.float64]:
         self.rate = self._sample_rate()
-        return self._sample_poisson_process(n, length)
+        return self._sample_poisson_process(n=n)
+
+    @override
+    def sample_with_length(
+        self,
+        length: float,
+    ) -> npt.NDArray[np.float64]:
+        self.rate = self._sample_rate()
+        return self._sample_poisson_process(length=length)

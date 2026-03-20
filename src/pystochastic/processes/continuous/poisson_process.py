@@ -31,7 +31,7 @@ class PoissonProcess(BaseProcess):
     def __init__(
         self,
         *,
-        rate: float = 1,
+        rate: float = 1.0,
         rng: Generator | None = None,
     ) -> None:
         super().__init__(rng=rng)
@@ -68,16 +68,20 @@ class PoissonProcess(BaseProcess):
         if n is not None:
             check_positive_integer(n=n)
 
-            exponentials = self.rng.exponential(scale=1.0 / self.rate, size=n)
+            exponentials = self.rng.exponential(
+                scale=1.0 / self.rate,
+                size=n,
+            )
 
-            s = np.array([0] + list(np.cumsum(exponentials)))
+            s = np.array([0.0] + list(np.cumsum(exponentials)))
+
             return s
 
         if length is not None:
             check_positive_number(value=length, name="Sample length")
 
-            t = 0
-            times = [0]
+            t = 0.0
+            times = [0.0]
             exp_rate = 1.0 / self.rate
 
             while t < length:
@@ -93,10 +97,10 @@ class PoissonProcess(BaseProcess):
         self,
         n: int,
     ) -> npt.NDArray[np.float64]:
-        """Generate a realization.
+        return self._sample_poisson_process(n=n)
 
-        Exactly one of `n` and `length` must be provided.
-
-        :param int n: the number of arrivals to simulate
-        """
-        return self._sample_poisson_process(n)
+    def sample_with_length(
+        self,
+        length: float,
+    ) -> npt.NDArray[np.float64]:
+        return self._sample_poisson_process(length=length)

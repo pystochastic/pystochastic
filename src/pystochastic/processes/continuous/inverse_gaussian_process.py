@@ -44,7 +44,7 @@ class InverseGaussianProcess(BaseTimeProcess):
         scale: float = 1.0,
         t: float = 1.0,
         rng: Generator | None = None,
-    ):
+    ) -> None:
         super().__init__(t=t, rng=rng)
 
         self.mean = mean
@@ -60,8 +60,7 @@ class InverseGaussianProcess(BaseTimeProcess):
 
     def __repr__(self) -> str:
         return (
-            f"InverseGaussianProcess(mean={self.mean.__name__}, "
-            f"scale={self.scale}, t={self.t})"
+            f"InverseGaussianProcess(mean={self.mean.__name__}, " f"scale={self.scale}, t={self.t})"
         )
 
     @property
@@ -72,9 +71,7 @@ class InverseGaussianProcess(BaseTimeProcess):
     @mean.setter
     def mean(self, value: Callable[[float], float]) -> None:
         if not callable(value):
-            raise TypeError(
-                f"Mean must be a callable function; got {type(value)}."
-            )
+            raise TypeError(f"Mean must be a callable function; got {type(value)}.")
 
         try:
             num_args = len(inspect.signature(value).parameters)
@@ -131,10 +128,7 @@ class InverseGaussianProcess(BaseTimeProcess):
         xs = (
             self.__ms
             + self.__ms**2 * ys / 2 / ls
-            - self.__ms
-            / 2
-            / ys
-            * np.sqrt(4 * self.__ms * ls * ys + self.__ms**2 * ys**2)
+            - self.__ms / 2 / ys * np.sqrt(4 * self.__ms * ls * ys + self.__ms**2 * ys**2)
         )
 
         zs = self.rng.uniform(size=n)
@@ -172,11 +166,7 @@ class InverseGaussianProcess(BaseTimeProcess):
         gn = self.rng.normal(size=n)
         ys = gn**2
 
-        xs = (
-            ms
-            + ms**2 * ys / 2 / ls
-            - ms / 2 / ys * np.sqrt(4 * ms * ls * ys + ms**2 * ys**2)
-        )
+        xs = ms + ms**2 * ys / 2 / ls - ms / 2 / ys * np.sqrt(4 * ms * ls * ys + ms**2 * ys**2)
 
         zs = self.rng.uniform(size=n)
 
