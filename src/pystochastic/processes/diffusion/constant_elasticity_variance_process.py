@@ -1,4 +1,4 @@
-from typing import Any, Callable
+from typing import Callable
 
 from numpy.random import Generator
 
@@ -69,9 +69,9 @@ class ConstantElasticityVarianceProcess(DiffusionProcess):
         )
 
     @property
-    def drift(self) -> Callable[[Any], float | int]:
+    def drift(self) -> Callable[[float], float]:
         """Drift, or Mu."""
-        return lambda *args, **kwargs: -self.speed(*args, **kwargs)
+        return lambda t: -self.speed(t)
 
     @drift.setter
     def drift(self, value: float) -> None:

@@ -94,6 +94,6 @@ def check_numeric_or_single_arg_callable(
     if callable(value) and len(signature(value).parameters) != 1:
         raise ValueError(f"{name} callable must have a single argument")
     if not isinstance(value, (float, int)) and not callable(value):
-        raise ValueError(
+        raise TypeError(
             f"{name} must be numeric or a single argument callable",
         )

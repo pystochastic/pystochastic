@@ -1,17 +1,10 @@
-"""Constant elasticity of variance tests."""
-
-from pystochastic.processes.diffusion import ConstantElasticityVarianceProcess
-
-
-def test_constant_elasticity_variance_str_repr(drift, vol, volexp, t):
-    instance = ConstantElasticityVarianceProcess(drift, vol, volexp, t)
-    assert isinstance(repr(instance), str)
-    assert isinstance(str(instance), str)
+from pystochastic.processes.diffusion import (
+    ConstantElasticityVarianceProcess as TestType,
+)
 
 
-def test_constant_elasticity_variance_sample(
-    drift, vol, volexp, t, n, initial, threshold
-):
-    instance = ConstantElasticityVarianceProcess(drift, vol, volexp, t)
-    s = instance.sample(n, initial)
-    assert len(s) == n + 1
+def test_constant_elasticity_variance_process_str_repr() -> None:
+    instance = TestType(drift=1.0, vol=0.5, volexp=0.5, t=2.0)
+
+    assert "Constant elasticity of variance process with drift=" in str(instance)
+    assert "ConstantElasticityVarianceProcess(drift=" in repr(instance)

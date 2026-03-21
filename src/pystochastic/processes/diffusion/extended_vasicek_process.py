@@ -1,4 +1,4 @@
-from typing import Any, Callable
+from typing import Callable
 
 from numpy.random import Generator
 
@@ -42,9 +42,9 @@ class ExtendedVasicekProcess(DiffusionProcess):
     def __init__(
         self,
         *,
-        speed: Callable[[Any], float | int] | float | int = 1,
-        mean: Callable[[Any], float | int] | float | int = 0,
-        vol: Callable[[Any], float | int] | float | int = 1,
+        speed: Callable[[float], float] | float | int = 1.0,
+        mean: Callable[[float], float] | float | int = 0.0,
+        vol: Callable[[float], float] | float | int = 1.0,
         t: float = 1.0,
         rng: Generator | None = None,
     ) -> None:
@@ -52,7 +52,7 @@ class ExtendedVasicekProcess(DiffusionProcess):
             speed=speed,
             mean=mean,
             vol=vol,
-            volexp=0,
+            volexp=0.0,
             t=t,
             rng=rng,
         )

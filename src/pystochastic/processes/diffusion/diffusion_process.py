@@ -1,4 +1,4 @@
-from typing import Any, Callable, override
+from typing import Callable, override
 
 import numpy as np
 import numpy.typing as npt
@@ -49,10 +49,10 @@ class DiffusionProcess(GaussianNoise):
     def __init__(
         self,
         *,
-        speed: Callable[[Any], float | int] | float | int = 1,
-        mean: Callable[[Any], float | int] | float | int = 0,
-        vol: Callable[[Any], float | int] | float | int = 1,
-        volexp: Callable[[Any], float | int] | float | int = 0,
+        speed: Callable[[float], float] | float | int = 1.0,
+        mean: Callable[[float], float] | float | int = 0.0,
+        vol: Callable[[float], float] | float | int = 1.0,
+        volexp: Callable[[float], float] | float | int = 0.0,
         t: float = 1.0,
         rng: Generator | None = None,
     ) -> None:
@@ -71,50 +71,50 @@ class DiffusionProcess(GaussianNoise):
 
     def __repr__(self) -> str:
         return (
-            f"Diffusion(speed={self.speed}, mean={self.mean}, "
+            f"DiffusionProcess(speed={self.speed}, mean={self.mean}, "
             f"vol={self.vol}, volexp={self.volexp}, t={self.t})"
         )
 
     @property
-    def speed(self) -> Callable[[Any], float | int]:
+    def speed(self) -> Callable[[float], float]:
         """Speed, or :math:`\theta_t`."""
         return self.__speed
 
     @speed.setter
-    def speed(self, value: Callable[[Any], float | int] | float | int) -> None:
+    def speed(self, value: Callable[[float], float] | float | int) -> None:
         check_numeric_or_single_arg_callable(value=value, name="speed")
 
         self.__speed = ensure_single_arg_constant_function(value=value)
 
     @property
-    def mean(self) -> Callable[[Any], float | int]:
+    def mean(self) -> Callable[[float], float]:
         r"""Mean, or :math:`\mu_t`."""
         return self.__mean
 
     @mean.setter
-    def mean(self, value: Callable[[Any], float | int] | float | int) -> None:
+    def mean(self, value: Callable[[float], float] | float | int) -> None:
         check_numeric_or_single_arg_callable(value=value, name="mean")
         self.__mean = ensure_single_arg_constant_function(value=value)
 
     @property
-    def vol(self) -> Callable[[Any], float | int]:
+    def vol(self) -> Callable[[float], float]:
         r"""Volatility, or :math:`\sigma_t`."""
         return self.__vol
 
     @vol.setter
-    def vol(self, value: Callable[[Any], float | int] | float | int) -> None:
+    def vol(self, value: Callable[[float], float] | float | int) -> None:
         check_numeric_or_single_arg_callable(value=value, name="vol")
         self.__vol = ensure_single_arg_constant_function(value=value)
 
     @property
-    def volexp(self) -> Callable[[Any], float | int]:
+    def volexp(self) -> Callable[[float], float]:
         r"""Volatility exponent, or :math:`\gamma_t`."""
         return self.__volexp
 
     @volexp.setter
     def volexp(
         self,
-        value: Callable[[Any], float | int] | float | int,
+        value: Callable[[float], float] | float | int,
     ) -> None:
         check_numeric_or_single_arg_callable(value=value, name="volexp")
         self.__volexp = ensure_single_arg_constant_function(value=value)
@@ -141,7 +141,19 @@ class DiffusionProcess(GaussianNoise):
         return np.array(s)
 
     @override
-    def sample(self, n: int, initial: float = 1.0) -> npt.NDArray[np.float64]:
+    def sample(self, n: int) -> npt.NDArray[np.float64]:
+        """Generate a realization.
+
+        :param int n: the number of increments to generate
+        :param float initial: the initial value of the process
+        """
+        return self._sample(n, 1.0)
+
+    def sample_with_initial(
+        self,
+        n: int,
+        initial: float,
+    ) -> npt.NDArray[np.float64]:
         """Generate a realization.
 
         :param int n: the number of increments to generate
@@ -153,7 +165,6 @@ class DiffusionProcess(GaussianNoise):
     def sample_at(
         self,
         times: npt.NDArray[np.float64],
-        initial: float = 1.0,
     ) -> npt.NDArray[np.float64]:
         raise NotImplementedError(
             "Sampling at specific times is not implemented for the general "

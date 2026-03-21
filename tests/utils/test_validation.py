@@ -175,14 +175,14 @@ def test_check_nonnegative_number(value: float) -> None:
 
 
 @pytest.mark.parametrize(
-    "value",
+    "value, error_type",
     [
-        lambda x, y: 5,
-        "test",
+        (lambda x, y: 5, ValueError),
+        ("test", TypeError),
     ],
 )
-def test_check_numeric_or_single_arg_callable_invalid(value: Any) -> None:
-    with pytest.raises(ValueError):
+def test_check_numeric_or_single_arg_callable_invalid(value: Any, error_type: type) -> None:
+    with pytest.raises(error_type):
         check_numeric_or_single_arg_callable(value=value)
 
 
