@@ -45,7 +45,7 @@ class VasicekProcess(ExtendedVasicekProcess):
         vol: float = 1.0,
         t: float = 1.0,
         rng: Generator | None = None,
-    ):
+    ) -> None:
         super().__init__(
             speed=speed,
             mean=mean,

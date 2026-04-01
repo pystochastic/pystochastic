@@ -7,7 +7,10 @@ from numpy.random import Generator
 from ...utils.validation import check_positive_integer
 from ..base import BaseSequenceProcess
 
-DEFAULT_TRANSITION: npt.NDArray[np.float64] = np.array([[0.5, 0.5], [0.5, 0.5]])
+DEFAULT_TRANSITION: npt.NDArray[np.float64] = np.array(
+    [[0.5, 0.5], [0.5, 0.5]],
+    dtype=np.float64,
+)
 
 
 class MarkovChain(BaseSequenceProcess):
@@ -28,38 +31,29 @@ class MarkovChain(BaseSequenceProcess):
 
     def __init__(
         self,
-        transition: (
-            Iterable[Iterable[float]] | npt.NDArray[np.float64]
-        ) = DEFAULT_TRANSITION,
+        transition: Iterable[Iterable[float]] | npt.NDArray[np.float64] = DEFAULT_TRANSITION,
         initial: Iterable[float] | npt.NDArray[np.float64] | None = None,
         rng: Generator | None = None,
     ) -> None:
         super().__init__(rng=rng)
 
-        self.__transition: npt.NDArray[np.float64]
-        self.__initial: npt.NDArray[np.float64]
-
-        self.transition = np.asarray(transition)
+        self.transition = transition
 
         if initial is None:
-            initial = [
-                float(1.0 / len(self.transition)) for _ in self.transition
-            ]
+            initial = [float(1.0 / len(self.transition)) for _ in self.transition]
 
-        self.initial = np.asarray(initial)
+        self.initial = initial
 
         self.__num_states = len(self.__initial)
 
     def __str__(self) -> str:
         return (
-            f"Markov chain with transition matrix = \n{self.transition} "
+            f"Markov chain with transition matrix = {self.transition} "
             f"and initial state probabilities = {self.initial}"
         )
 
     def __repr__(self) -> str:
-        return (
-            f"MarkovChain(transition={self.transition}, initial={self.initial})"
-        )
+        return f"MarkovChain(transition={self.transition}, initial={self.initial})"
 
     @property
     def transition(self) -> npt.NDArray[np.float64]:
@@ -67,16 +61,26 @@ class MarkovChain(BaseSequenceProcess):
         return self.__transition
 
     @transition.setter
-    def transition(self, values: npt.NDArray[np.float64]) -> None:
-        values = np.asarray(values)
+    def transition(self, values: Iterable[Iterable[float]] | npt.NDArray[np.float64]) -> None:
+        values = np.asarray(values, dtype=np.float64)
 
-        if values.ndim != 2 or values.shape[0] != values.shape[1]:
-            raise ValueError("Transition matrix must be a square matrix.")
+        if values.ndim != 2:
+            raise ValueError(
+                "Transition matrix must be a two-dimensional array; "
+                f"got {values.ndim} dimensions."
+            )
+
+        if values.shape[0] != values.shape[1]:
+            raise ValueError(
+                "Transition matrix must be a square matrix; "
+                f"got {values.shape[0]}x{values.shape[1]}."
+            )
 
         for row in values:
-            if sum(row) != 1:
+            if not np.isclose(np.sum(row), 1.0):
                 raise ValueError(
-                    "Transition matrix is not a proper stochastic matrix."
+                    "Transition matrix is not a proper stochastic matrix; "
+                    f"row sums to {np.sum(row)}."
                 )
 
         self.__transition = values
@@ -87,16 +91,23 @@ class MarkovChain(BaseSequenceProcess):
         return self.__initial
 
     @initial.setter
-    def initial(self, values: npt.NDArray[np.float64]) -> None:
-        values = np.asarray(values)
+    def initial(self, values: Iterable[float] | npt.NDArray[np.float64]) -> None:
+        values = np.asarray(values, dtype=np.float64)
 
-        if values.ndim != 1 or len(values) != len(self.transition):
+        if values.ndim != 1:
             raise ValueError(
-                "Initial state probabilities must be one-to-one with states."
+                "Initial state probabilities must be a one-dimensional vector; "
+                f"got {values.ndim} dimensions."
             )
 
-        if sum(values) != 1:
-            raise ValueError("Initial state probabilities must sum to 1.")
+        if len(values) != len(self.transition):
+            raise ValueError(
+                "Length of initial state probabilities must match the number of states in the "
+                f"transition matrix; got {len(values)} values for {len(self.transition)} states."
+            )
+
+        if not np.isclose(np.sum(values), 1.0):
+            raise ValueError(f"Initial state probabilities must sum to 1; got {np.sum(values)}.")
 
         self.__initial = values
 
@@ -107,14 +118,12 @@ class MarkovChain(BaseSequenceProcess):
 
     @override
     def sample(self, n: int) -> npt.NDArray[np.float64]:
-        check_positive_integer(n)
+        check_positive_integer(n=n)
 
-        states = range(self.__num_states)
+        states = range(self.num_states)
 
         markov_chain = [self.rng.choice(states, p=self.initial)]
         for _ in range(n - 1):
-            markov_chain.append(
-                self.rng.choice(states, p=self.transition[markov_chain[-1]])
-            )
+            markov_chain.append(self.rng.choice(states, p=self.transition[markov_chain[-1]]))
 
         return np.array(markov_chain)

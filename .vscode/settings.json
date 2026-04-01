@@ -10,6 +10,7 @@
     "multifractional",
     "numpy",
     "pystochastic",
+    "rtol",
     "scipy"
   ],
   // D
@@ -55,7 +56,6 @@
   "mypy-type-checker.importStrategy": "fromEnvironment",
   "pylint.importStrategy": "fromEnvironment",
   "notebook.formatOnSave.enabled": true,
-  "notebook.insertFinalNewline": true,
   "notebook.lineNumbers": "on",
   "black-formatter.args": [
     "--line-length",

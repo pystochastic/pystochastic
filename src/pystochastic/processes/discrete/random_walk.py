@@ -4,7 +4,11 @@ import numpy as np
 import numpy.typing as npt
 from numpy.random import Generator
 
-from ...utils.validation import check_positive_integer
+from ...utils.validation import (
+    check_nonnegative_number,
+    check_numeric,
+    check_positive_integer,
+)
 from ..base import BaseSequenceProcess
 
 
@@ -23,92 +27,84 @@ class RandomWalk(BaseSequenceProcess):
         step value. If not provided each step has equal weight/probability.
     """
 
-    def __init__(self, steps=None, weights=None, rng=None):
+    def __init__(
+        self,
+        *,
+        steps: list[float | int] | npt.NDArray[np.float64] | None = None,
+        weights: list[float | int] | npt.NDArray[np.float64] | None = None,
+        rng: Generator | None = None,
+    ) -> None:
         super().__init__(rng=rng)
-        self.steps = steps or [-1, 1]
-        length = len(steps)
+        self.steps = steps or [-1.0, 1.0]
+
+        length = len(self.steps)
         if length < 1:
             raise ValueError("Steps must have at least one element.")
+
         if weights is None:
-            self.weights = [1 for _ in steps]
-            self.p = [1.0 / length for _ in steps]
+            self.weights = [1.0 for _ in self.steps]
+            self.p = [1.0 / length for _ in self.steps]
         else:
             if len(weights) != length:
-                raise ValueError(
-                    "Steps and probabilities must have same length."
-                )
+                raise ValueError("Steps and probabilities must have same length.")
+
             self.weights = weights
             total = sum(weights)
             self.p = [1.0 * w / total for w in weights]
 
     def __str__(self) -> str:
-        return "Random walk steps = {s} and weights = {w}".format(
-            s=str(self.steps), w=str(self.weights)
-        )
+        return f"Random walk steps = {self.steps} and weights = {self.weights}"
 
     def __repr__(self) -> str:
-        return "RandomWalk(steps={s}, weights={w})".format(
-            s=str(self.steps), w=str(self.weights)
-        )
+        return f"RandomWalk(steps={self.steps}, weights={self.weights})"
 
     @property
-    def p(self):
+    def p(self) -> npt.NDArray[np.float64]:
         """Step probabilities, normalized from :py:attr:`weights`."""
-        return self._p
+        return self.__p
 
     @p.setter
-    def p(self, values):
-        values = np.array(values, copy=True)
-        self._p = values
+    def p(self, values: list[float] | npt.NDArray[np.float64]) -> None:
+        self.__p = np.array(values, dtype=np.float64, copy=True)
 
     @property
-    def steps(self):
+    def steps(self) -> npt.NDArray[np.float64]:
         """Possible steps."""
-        return self._steps
+        return self.__steps
 
     @steps.setter
-    def steps(self, values):
-        for value in values:
-            if not isinstance(value, int) and not isinstance(value, float):
-                raise TypeError("Step values must be numeric.")
-        values = np.array(values, copy=True)
-        self._steps = values
+    def steps(self, values: list[float | int] | npt.NDArray[np.float64]) -> None:
+        for i, value in enumerate(values):
+            check_numeric(value=value, name=f"Step values[{i}] = {value}")
+
+        self.__steps = np.array(values, dtype=np.float64, copy=True)
 
     @property
-    def weights(self):
+    def weights(self) -> npt.NDArray[np.float64]:
         """Step weights provided."""
-        return self._weights
+        return self.__weights
 
     @weights.setter
-    def weights(self, values):
-        for value in values:
-            if not isinstance(value, (int, float)):
-                raise TypeError("Weight values must be numeric.")
-            if value < 0:
-                raise ValueError("Weight values must be nonnegative.")
-        values = np.array(values, copy=True)
-        self._weights = values
+    def weights(self, values: list[float | int] | npt.NDArray[np.float64]) -> None:
+        for i, value in enumerate(values):
+            check_nonnegative_number(value=value, name=f"Weight values[{i}] = {value}")
 
-    def _sample_random_walk(self, n):
+        self.__weights = np.array(values, dtype=np.float64, copy=True)
+
+    def _sample_random_walk(self, n: int) -> npt.NDArray[np.float64]:
         """Generate a random walk."""
-        return np.array(
-            [0] + list(np.cumsum(self._sample_random_walk_increments(n)))
-        )
+        return np.array([0] + list(np.cumsum(self._sample_random_walk_increments(n))))
 
     @override
     def sample(self, n: int) -> npt.NDArray[np.float64]:
-        """Generate a sample random walk.
-
-        :param int n: the number of steps to generate
-        """
         return self._sample_random_walk(n)
 
-    def _sample_random_walk_increments(self, n):
+    def _sample_random_walk_increments(self, n: int) -> npt.NDArray[np.float64]:
         """Generate a sample of random walk increments."""
-        check_positive_integer(n)
+        check_positive_integer(n=n)
         return self.rng.choice(self.steps, p=self.p, size=n)
 
-    def sample_increments(self, n):
+    def sample_increments(self, n: int) -> npt.NDArray[np.float64]:
         """Generate a sample of random walk increments.
 
         :param int n: the number of increments to generate.

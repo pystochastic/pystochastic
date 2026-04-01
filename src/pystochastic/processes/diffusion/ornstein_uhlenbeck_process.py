@@ -41,7 +41,7 @@ class OrnsteinUhlenbeckProcess(VasicekProcess):
         vol: float = 1.0,
         t: float = 1.0,
         rng: Generator | None = None,
-    ):
+    ) -> None:
         super().__init__(
             speed=speed,
             mean=0.0,
