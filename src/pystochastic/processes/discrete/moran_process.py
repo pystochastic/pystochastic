@@ -1,8 +1,27 @@
+from typing import override
+
 import numpy as np
 import numpy.typing as npt
 from numpy.random import Generator
 
+from ...utils.validation import check_positive_integer
 from ..base import BaseSequenceProcess
+
+
+def _probabilities(n: int) -> npt.NDArray[np.float64]:
+    """Generate the transition probabilities for state :math:`n`.
+
+    :param int n: the current state for which to generate transition
+        probabilities.
+    """
+    probabilities = []
+    for k in range(1, n):
+        p_down = 1.0 * (n - k) / n * k / n
+        p_up = 1.0 * k / n * (n - k) / n
+        p_same = 1.0 - p_down - p_up
+        probabilities.append([p_down, p_same, p_up])
+
+    return np.asarray(probabilities)
 
 
 class MoranProcess(BaseSequenceProcess):
@@ -29,7 +48,7 @@ class MoranProcess(BaseSequenceProcess):
         super().__init__(rng=rng)
 
         self.maximum = maximum
-        self.p = self._probabilities(maximum)
+        self.__p = _probabilities(maximum)
 
     def __str__(self) -> str:
         return f"Moran process with {self.maximum} states"
@@ -43,29 +62,13 @@ class MoranProcess(BaseSequenceProcess):
         return self.__maximum
 
     @maximum.setter
-    def maximum(self, value: int) -> None:
-        if not isinstance(value, int):
-            raise TypeError("Number of states must be an integer.")
+    def maximum(self, n: int) -> None:
+        check_positive_integer(n=n, name="Maximum value")
 
-        if value <= 2:
-            raise ValueError("Number of states must be at least 3.")
+        if n < 3:
+            raise ValueError(f"Number of states must be at least 3; got {n}.")
 
-        self.__maximum = value
-
-    def _probabilities(self, n: int) -> npt.NDArray[np.float64]:
-        """Generate the transition probabilities for state :math:`n`.
-
-        :param int n: the current state for which to generate transition
-            probabilities.
-        """
-        probabilities = []
-        for k in range(1, n):
-            p_down = 1.0 * (n - k) / n * k / n
-            p_up = 1.0 * k / n * (n - k) / n
-            p_same = 1.0 - p_down - p_up
-            probabilities.append([p_down, p_same, p_up])
-
-        return np.asarray(probabilities)
+        self.__maximum = n
 
     def _sample_moran_process(
         self,
@@ -92,21 +95,16 @@ class MoranProcess(BaseSequenceProcess):
         s = [start]
         increments = [-1, 0, 1]
         for _ in range(n - 1):
-            if start in [0, self.maximum]:
+            if start in (0, self.maximum):
                 break
-            start += self.rng.choice(increments, p=self.p[start - 1])
+            start += self.rng.choice(increments, p=self.__p[start - 1])
             s.append(start)
 
         return np.array(s)
 
-    def sample(self, n: int, start: int) -> npt.NDArray[np.float64]:
-        """Generate a realization of the Moran process.
+    @override
+    def sample(self, n: int) -> npt.NDArray[np.float64]:
+        return self._sample_moran_process(n, 1)
 
-        Generate a Moran process until absorption occurs (state 0
-        or :py:attr:`maximum`) or length of process reaches length :math:`n`.
-
-        :param int n: the maximum number of steps to generate assuming
-            absorption does not occur.
-        :param int start: the initial state of the process.
-        """
+    def sample_with_start(self, n: int, start: int) -> npt.NDArray[np.float64]:
         return self._sample_moran_process(n, start)

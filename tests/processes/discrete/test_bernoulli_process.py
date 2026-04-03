@@ -1,31 +1,78 @@
-"""Bernoulli tests."""
+from typing import Any
 
+import numpy as np
 import pytest
 
-from pystochastic.processes.discrete import BernoulliProcess
+from pystochastic.processes.discrete import BernoulliProcess as TestType
 
 
-def test_bernoulli_str_repr(p):
-    instance = BernoulliProcess(p)
-    assert isinstance(repr(instance), str)
-    assert isinstance(str(instance), str)
+@pytest.mark.parametrize(
+    "p, error_type",
+    [
+        (
+            "invalid",
+            TypeError,
+        ),
+        (
+            -1,
+            ValueError,
+        ),
+        (
+            1.5,
+            ValueError,
+        ),
+    ],
+)
+def test_bernoulli_process_invalid_p(
+    p: Any,
+    error_type: type,
+) -> None:
+    with pytest.raises(error_type):
+        TestType(p=p)
 
 
-def test_bernoulli_sample(p, n):
-    instance = BernoulliProcess(p)
-    s = instance.sample(n)
-    assert len(s) == n
-    for trial in s:
-        assert trial in [0, 1]
+def test_bernoulli_process_str_repr() -> None:
+    instance = TestType(p=0.5)
+
+    assert str(instance) == "Bernoulli process with p=0.5."
+    assert repr(instance) == "BernoulliProcess(0.5)"
 
 
-def test_bernoulli_probability(p_fixture):
-    if not isinstance(p_fixture, (int, float)):
-        with pytest.raises(TypeError):
-            instance = BernoulliProcess(p_fixture)
-    elif p_fixture > 1 or p_fixture < 0:
-        with pytest.raises(ValueError):
-            instance = BernoulliProcess(p_fixture)
-    else:
-        instance = BernoulliProcess(p_fixture)
-        assert True
+def test_bernoulli_process_sample_shape() -> None:
+    instance = TestType()
+    n = 1000
+    samples = instance.sample(n=n)
+
+    assert samples.shape == (n,)
+
+
+@pytest.mark.parametrize(
+    "p, n, expected",
+    [
+        (
+            0.5,
+            5,
+            [0.0, 1.0, 0.0, 0.0, 0.0],
+        ),
+        (
+            0.6,
+            5,
+            [0.0, 1.0, 1.0, 0.0, 0.0],
+        ),
+    ],
+)
+def test_bernoulli_process_sample_values(
+    p: float,
+    n: int,
+    expected: list[float],
+) -> None:
+    rng = np.random.default_rng(1234567890)
+
+    instance = TestType(
+        p=p,
+        rng=rng,
+    )
+
+    samples = instance.sample(n=n)
+    print(samples)
+    np.testing.assert_allclose(samples, expected, rtol=1e-6)

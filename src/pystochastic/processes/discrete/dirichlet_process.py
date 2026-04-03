@@ -46,6 +46,12 @@ class DirichletProcess(BaseSequenceProcess):
         self.base = base
         self.alpha = alpha
 
+    def __str__(self) -> str:
+        return f"Dirichlet process with alpha={self.alpha} and base distribution {self.base}"
+
+    def __repr__(self) -> str:
+        return f"DirichletProcess(alpha={self.alpha}, base={self.base})"
+
     @property
     def base(self) -> Callable[[], float]:
         """The base distribution callable for sampling new step values."""
@@ -54,7 +60,8 @@ class DirichletProcess(BaseSequenceProcess):
     @base.setter
     def base(self, value: Callable[[], float]) -> None:
         if not callable(value):
-            raise ValueError("base must be callable")
+            raise TypeError("base must be callable")
+
         self.__base = value
 
     @property
@@ -64,7 +71,8 @@ class DirichletProcess(BaseSequenceProcess):
 
     @alpha.setter
     def alpha(self, value: float) -> None:
-        check_positive_number(value)
+        check_positive_number(value=value, name="alpha")
+
         self.__alpha = value
 
     def _sample(self, n: int) -> npt.NDArray[np.float64]:
@@ -72,14 +80,14 @@ class DirichletProcess(BaseSequenceProcess):
 
         :param int n: the number of steps of the Dirichlet process to generate.
         """
-        sequence = []
-        for k in range(1, n + 1):
-            draw_proba = self.alpha / (self.alpha + k - 1)
-            if self.rng.uniform() < draw_proba:
-                sequence.append(self.base())
+        sequence = np.empty(n, dtype=np.float64)
+        for k in range(n):
+            p = self.alpha / (self.alpha + k)
+            if self.rng.uniform() < p:
+                sequence[k] = self.base()
             else:
-                sequence.append(self.rng.choice(sequence))
-        return np.array(sequence)
+                sequence[k] = self.rng.choice(sequence[:k])
+        return sequence
 
     @override
     def sample(self, n: int) -> npt.NDArray[np.float64]:

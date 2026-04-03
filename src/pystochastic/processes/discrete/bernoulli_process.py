@@ -48,17 +48,19 @@ class BernoulliProcess(BaseSequenceProcess):
     def p(self, value: float) -> None:
         if not isinstance(value, (int, float)):
             raise TypeError(
-                "Probability of success must be a number between 0 and 1.",
+                "Probability of success must be a number between 0.0 and 1.0",
             )
-        if value < 0 or value > 1:
+
+        if value < 0.0 or value > 1.0:
             raise ValueError(
-                "Probability of success p must be between 0 and 1.",
+                "Probability of success p must be between 0.0 and 1.0",
             )
+
         self.__p = float(value)
 
     def _sample_bernoulli(self, n: int) -> npt.NDArray[np.float64]:
         """Generate a Bernoulli process realization."""
-        check_positive_integer(n)
+        check_positive_integer(n=n)
 
         return np.array(
             [

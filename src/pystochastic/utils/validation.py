@@ -12,9 +12,9 @@ def check_positive_integer(
 ) -> None:
     """Ensure that the number is a positive integer."""
     if not isinstance(n, int):
-        raise TypeError(f"{name} must be an integer.")
+        raise TypeError(f"{name} must be an integer; got {type(n).__name__}.")
     if n <= 0:
-        raise ValueError(f"{name} must be positive.")
+        raise ValueError(f"{name} must be positive; got {n}.")
 
 
 def check_nonnegative_integer(
@@ -24,9 +24,9 @@ def check_nonnegative_integer(
 ) -> None:
     """Ensure that the number is a nonnegative integer."""
     if not isinstance(n, int):
-        raise TypeError(f"{name} must be an integer.")
+        raise TypeError(f"{name} must be an integer; got {type(n).__name__}.")
     if n < 0:
-        raise ValueError(f"{name} must be nonnegative.")
+        raise ValueError(f"{name} must be nonnegative; got {n}.")
 
 
 def check_numeric(
@@ -36,7 +36,7 @@ def check_numeric(
 ) -> None:
     """Ensure that the value is numeric."""
     if not isinstance(value, (float, int)):
-        raise TypeError(f"{name} value must be a number.")
+        raise TypeError(f"{name} value must be a number; got {type(value).__name__}.")
 
 
 def check_positive_number(
@@ -47,7 +47,7 @@ def check_positive_number(
     """Ensure that the value is a positive number."""
     check_numeric(value=value, name=name)
     if value <= 0:
-        raise ValueError(f"{name} value must be positive.")
+        raise ValueError(f"{name} value must be positive; got {value}.")
 
 
 def check_nonnegative_number(
@@ -58,7 +58,7 @@ def check_nonnegative_number(
     """Ensure that the value is a nonnegative number"""
     check_numeric(value=value, name=name)
     if value < 0:
-        raise ValueError(f"{name} value must be nonnegative.")
+        raise ValueError(f"{name} value must be nonnegative; got {value}.")
 
 
 def check_increments(
@@ -92,8 +92,10 @@ def check_numeric_or_single_arg_callable(
 ) -> None:
     """Ensure a numeric of single arg callable."""
     if callable(value) and len(signature(value).parameters) != 1:
-        raise ValueError(f"{name} callable must have a single argument")
+        raise ValueError(
+            f"{name} callable must have a single argument; got {len(signature(value).parameters)}."
+        )
     if not isinstance(value, (float, int)) and not callable(value):
         raise TypeError(
-            f"{name} must be numeric or a single argument callable",
+            f"{name} must be numeric or a single argument callable; got {type(value).__name__}.",
         )
