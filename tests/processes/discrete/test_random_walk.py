@@ -73,8 +73,8 @@ def test_random_walk_invalid_weights(
 def test_random_walk_str_repr() -> None:
     instance = TestType(steps=[-1, 0, 1])
 
-    assert str(instance) == "Random walk steps = [-1  0  1] and weights = [1. 1. 1.]"
-    assert repr(instance) == "RandomWalk(steps=[-1  0  1], weights=[1. 1. 1.])"
+    assert str(instance) == "Random walk steps = [-1.  0.  1.] and weights = [1. 1. 1.]"
+    assert repr(instance) == "RandomWalk(steps=[-1.  0.  1.], weights=[1. 1. 1.])"
 
 
 def test_random_walk_sample_shape() -> None:
