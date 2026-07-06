@@ -1,0 +1,37 @@
+name: Quality
+
+on:
+  pull_request:
+    branches: [master]
+
+jobs:
+  quality:
+    name: Run quality checks
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install UV
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+          cache-dependency-glob: "uv.lock"
+
+      - name: Install dependencies
+        run: make create_venv
+
+      - name: Run mypy
+        run: make run_mypy
+
+      - name: Run pyright
+        run: make run_pyright
+
+      - name: Run pylint
+        run: make run_pylint
+
+      - name: Run ruff
+        run: make run_ruff

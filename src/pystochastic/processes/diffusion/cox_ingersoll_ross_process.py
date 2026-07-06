@@ -1,0 +1,68 @@
+from numpy.random import Generator
+
+from .diffusion_process import DiffusionProcess
+
+
+class CoxIngersollRossProcess(DiffusionProcess):
+    r"""Cox-Ingersoll-Ross process.
+
+    .. image:: _static/cox_ingersoll_ross_process.png
+        :scale: 50%
+
+    A model for instantaneous interest rate.
+
+    The process :math:`X_t` that satisfies the following stochastic
+    differential equation with Wiener process :math:`W_t`:
+
+    .. math::
+
+        dX_t = \theta (\mu - X_t) dt + \sigma \sqrt{X_t} dW_t
+
+    Realizations are generated using the Euler-Maruyama method.
+
+    .. note::
+
+        Since the family of diffusion processes have parameters which
+        generalize to functions of ``t``, parameter attributes will be returned
+        as callables, even if they are initialized as constants. e.g. a
+        ``speed`` parameter of 1 accessed from an instance attribute will return
+        a function which accepts a single argument and always returns 1.
+
+    :param float speed: the speed of reversion, or :math:`\theta` above
+    :param float mean: the mean of the process, or :math:`\mu` above
+    :param float vol: volatility coefficient of the process, or :math:`\sigma`
+        above
+    :param float t: the right hand endpoint of the time interval :math:`[0,t]`
+        for the process
+    :param numpy.random.Generator rng: a custom random number generator
+    """
+
+    def __init__(
+        self,
+        *,
+        speed: float = 1.0,
+        mean: float = 0.0,
+        vol: float = 1.0,
+        t: float = 1.0,
+        rng: Generator | None = None,
+    ) -> None:
+        super().__init__(
+            speed=speed,
+            mean=mean,
+            vol=vol,
+            volexp=0.5,
+            t=t,
+            rng=rng,
+        )
+
+    def __str__(self) -> str:
+        return (
+            f"Cox-Ingersoll-Ross process with speed={self.speed}, mean={self.mean}, "
+            f"vol={self.vol} on [0, {self.t}]"
+        )
+
+    def __repr__(self) -> str:
+        return (
+            f"CoxIngersollRossProcess(speed={self.speed}, mean={self.mean}, "
+            f"vol={self.vol}, t={self.t})"
+        )

@@ -1,29 +1,86 @@
-"""Test BrownianExcursion."""
+import numpy as np
 import pytest
 
-from stochastic.processes.continuous import BrownianExcursion
+from pystochastic.processes.continuous import BrownianExcursion as TestType
 
 
-def test_brownian_excursion_str_repr(t):
-    instance = BrownianExcursion(t)
-    assert isinstance(repr(instance), str)
-    assert isinstance(str(instance), str)
+def test_brownian_excursion_str_repr() -> None:
+    instance = TestType(t=2.0)
+
+    assert str(instance) == "Brownian excursion on [0, 2.0]"
+    assert repr(instance) == "BrownianExcursion(t=2.0)"
 
 
-def test_brownian_excursion_sample(t, n, threshold):
-    instance = BrownianExcursion(t)
-    s = instance.sample(n)
-    assert len(s) == n + 1
-    assert (s >= 0).all()
-    assert s[0] == pytest.approx(0, threshold)
-    assert s[-1] == pytest.approx(0, threshold)
+def test_brownian_excursion_sample_shape() -> None:
+    instance = TestType(t=1.0)
+    n = 1000
+    samples = instance.sample(n=n)
+
+    assert samples.shape == (n + 1,)
+
+    t = np.linspace(0, 1.0, n + 1)
+    samples_at = instance.sample_at(times=t)
+
+    assert samples_at.shape == (n + 1,)
 
 
-def test_brownian_excursion_sample_at(t, times, threshold):
-    instance = BrownianExcursion(t)
-    s = instance.sample_at(times)
-    assert len(s) == len(times)
-    assert (s >= 0).all()
-    if times[0] == 0:
-        assert s[0] == pytest.approx(0, threshold)
-    assert s[-1] == pytest.approx(0, threshold)
+@pytest.mark.parametrize(
+    "t, n, expected",
+    [
+        (
+            1.0,
+            5,
+            [0.0, 0.48257157, 0.86948976, 0.07813982, 0.20696657, 0.0],
+        ),
+        (
+            2.0,
+            5,
+            [0.0, 0.68245926, 1.22964421, 0.1105064, 0.29269494, 0.0],
+        ),
+    ],
+)
+def test_brownian_excursion_sample_values(
+    t: float,
+    n: int,
+    expected: list[float],
+) -> None:
+    rng = np.random.default_rng(1234567890)
+
+    instance = TestType(t=t, rng=rng)
+
+    samples = instance.sample(n=n)
+    print(samples)
+    np.testing.assert_allclose(samples, expected, rtol=1e-6)
+
+
+@pytest.mark.parametrize(
+    "t, n, expected",
+    [
+        (
+            1.0,
+            5,
+            [0.0, 0.48257157, 0.86948976, 0.07813982, 0.20696657, 0.0],
+        ),
+        (
+            2.0,
+            5,
+            [0.0, 0.68245926, 1.22964421, 0.1105064, 0.29269494, 0.0],
+        ),
+    ],
+)
+def test_brownian_excursion_sample_at_values(
+    t: float,
+    n: int,
+    expected: list[float],
+) -> None:
+    rng = np.random.default_rng(1234567890)
+
+    instance = TestType(
+        t=t,
+        rng=rng,
+    )
+
+    times = np.linspace(0, t, n + 1)
+    samples_at = instance.sample_at(times=times)
+    print(samples_at)
+    np.testing.assert_allclose(samples_at, expected, rtol=1e-6)

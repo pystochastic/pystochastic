@@ -9,7 +9,7 @@ if "%SPHINXBUILD%" == "" (
 )
 set SOURCEDIR=.
 set BUILDDIR=_build
-set SPHINXPROJ=stochastic
+set SPHINXPROJ=pystochastic
 
 if "%1" == "" goto help
 
